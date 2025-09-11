@@ -62,7 +62,7 @@ class EventApiController extends Controller
     /**
      * Get a specific event by ID
      */
-    public function gitById(Event $event): JsonResponse
+    public function show(Event $event): JsonResponse
     {
         try {
             $event->load(['venue', 'activities']);

@@ -35,6 +35,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/events/{eventId}/apply', [VendorApiController::class, 'submitEventApplication']);
 });
 
+
+//CL: APIs for ticketing page to get ticket information
 // Ticketing Module API routes
 Route::prefix('v1/ticketing')->group(function () {
     // Get ticket information
@@ -47,13 +49,17 @@ Route::prefix('v1/ticketing')->group(function () {
     });
 });
 
+
+// CL: APIs for vendor page to get event information 
 // Vendor Module API routes
 Route::prefix('v1/vendor')->group(function () {
     // Get event and booth information
     Route::get('/events/{event}', [VendorApiController_cl::class, 'getEventInfo']);
     Route::get('/events/{event}/booths', [VendorApiController_cl::class, 'getBoothInfo']);
-    Route::get('/events', [VendorApiController_cl::class, 'getAllEventsWithBooths']);
-    Route::get('/events/accepting-applications', [VendorApiController_cl::class, 'getEventsAcceptingApplications']);
+    Route::get('/events', [VendorApiController_cl::class, 'getAllEventsWithBooths']); //time format (date + time)
+    
+    //not working - considering to dlt 
+    Route::get('/events/accepting-applications', [VendorApiController_cl::class, 'getEventsAcceptingApplications']); 
     
     // Update booth quantities (requires authentication)
     Route::middleware('auth:sanctum')->group(function () {
@@ -61,6 +67,8 @@ Route::prefix('v1/vendor')->group(function () {
     });
 });
 
+
+//Vendor Management (module) API routes
 // Protected API routes (require authentication)
 Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     // Vendor management API
