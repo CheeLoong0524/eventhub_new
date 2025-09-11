@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\VendorResource;
 use App\Models\Vendor;
 use App\Models\Event;
 use App\Models\VendorEventApplication;
@@ -44,28 +45,7 @@ class VendorApiController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => [
-                'vendor_id' => $vendor->id,
-                'business_name' => $vendor->business_name,
-                'business_type' => $vendor->business_type,
-                'business_description' => $vendor->business_description,
-                'contact_person' => $vendor->contact_person,
-                'contact_email' => $vendor->contact_email,
-                'contact_phone' => $vendor->contact_phone,
-                'business_address' => $vendor->business_address,
-                'service_type' => $vendor->service_type,
-                'service_categories' => $vendor->service_categories,
-                'website' => $vendor->website,
-                'rating' => $vendor->rating,
-                'total_events' => $vendor->total_events,
-                'is_verified' => $vendor->is_verified,
-                'approved_at' => $vendor->approved_at,
-                'user_details' => [
-                    'user_id' => $vendor->user->id,
-                    'name' => $vendor->user->name,
-                    'email' => $vendor->user->email
-                ]
-            ]
+            'data' => new VendorResource($vendor)
         ]);
     }
 
@@ -292,23 +272,7 @@ class VendorApiController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => [
-                'vendor_id' => $vendor->id,
-                'business_name' => $vendor->business_name,
-                'business_type' => $vendor->business_type,
-                'business_description' => $vendor->business_description,
-                'contact_person' => $vendor->contact_person,
-                'contact_email' => $vendor->contact_email,
-                'contact_phone' => $vendor->contact_phone,
-                'business_address' => $vendor->business_address,
-                'service_type' => $vendor->service_type,
-                'service_categories' => $vendor->service_categories,
-                'website' => $vendor->website,
-                'rating' => $vendor->rating,
-                'total_events' => $vendor->total_events,
-                'is_verified' => $vendor->is_verified,
-                'status' => $vendor->status
-            ]
+            'data' => new VendorResource($vendor)
         ]);
     }
 

@@ -21,11 +21,19 @@ class EventDirector
 
     public function buildEvent(array $data): Event
     {
+        // Step 1: Build venue using VenueBuilder
         $venue = $this->venueBuilder->build($data['venue_id']);
-        $time  = $this->timeBuilder->build($data['start_time'], $data['end_time']);
+        
+        // Step 2: Build time data using TimeBuilder
+        $time = $this->timeBuilder->build($data['start_time'], $data['end_time']);
+        
+        // Step 3: Build organizer using OrganizerBuilder
         $organizer = $this->organizerBuilder->build($data['organizer']);
+        
+        // Step 4: Build activities using ActivityBuilder
         $activities = $this->activityBuilder->build($data['activities'] ?? []);
 
+        // Step 5: Assemble the final Event object
         $event = new Event([
             'name'       => $data['name'],
             'venue_id'   => $venue->id,
@@ -34,6 +42,7 @@ class EventDirector
             'organizer'  => $organizer,
         ]);
 
+        // Step 6: Set relationships
         $event->setRelation('activities', collect($activities));
 
         return $event;
