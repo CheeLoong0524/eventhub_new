@@ -90,9 +90,9 @@ class CustomerDashboardController extends Controller
         $bookedEventIds = $userOrders->pluck('event_id')->toArray();
         $featuredEvents = Event::where('status', 'active')
             ->whereNotIn('id', $bookedEventIds)
-            ->where('start_date', '>=', now()->toDateString())
+            ->where('start_time', '>=', now())
             ->with(['venue'])
-            ->orderBy('start_date', 'asc')
+            ->orderBy('start_time', 'asc')
             ->limit(3)
             ->get();
 
