@@ -23,7 +23,7 @@ use App\Http\Controllers\EventController;
 
 // Public API routes (no authentication required)
 Route::prefix('v1')->group(function () {
-    // General event information API
+    // General event information API (CL)
     Route::get('/events', [EventApiController::class, 'index']);
     Route::get('/events/{event}', [EventApiController::class, 'show']);
     Route::get('/venues/{venue}/events', [EventApiController::class, 'getByVenue']);

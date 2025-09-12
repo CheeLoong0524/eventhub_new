@@ -13,8 +13,6 @@ class Event extends Model
         'venue_id', 
         'start_time', 
         'end_time',
-        'start_date',
-        'end_date',
         'organizer',
         'status',
         // Pricing and availability
@@ -29,8 +27,6 @@ class Event extends Model
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
         // Pricing casts
         'booth_price' => 'decimal:2',
         'ticket_price' => 'decimal:2',
@@ -44,6 +40,9 @@ class Event extends Model
         'net_profit' => 'decimal:2',
     ];
 
+    /**
+     * RELATIONSHIPS ------------------------------------------------- 
+     */
     public function venue()
     {
         return $this->belongsTo(Venue::class);
@@ -59,21 +58,21 @@ class Event extends Model
         return $this->hasMany(VendorEventApplication::class);
     }
 
-
-    /**
-     * Get the cart items for this event
-     */
+    // Get the cart items for this event 
     public function cartItems()
     {
         return $this->hasMany(CartItem::class);
     }
 
     /**
+     * METHODS ------------------------------------------------- 
+     */
+    /**
      * Check if event is upcoming
      */
     public function isUpcoming(): bool
     {
-        return $this->start_date >= now()->toDateString();
+        return $this->start_time >= now();
     }
 
     /**
@@ -81,14 +80,14 @@ class Event extends Model
      */
     public function isPast(): bool
     {
-        if (!$this->start_date) {
-            return false; // If no start_date, consider it not past
+        if (!$this->start_time) {
+            return false; // If no start_time, consider it not past
         }
-        return $this->start_date < now()->toDateString();
+        return $this->start_time < now();
     }
 
     /**
-     * Get total available tickets
+     * Get total available tickets 
      */
     public function getTotalAvailableTickets(): int
     {
@@ -105,7 +104,7 @@ class Event extends Model
     }
 
     /**
-     * Get total sold tickets
+     * Get total sold tickets 
      */
     public function getTotalSoldTickets(): int
     {
@@ -133,7 +132,7 @@ class Event extends Model
      */
     public function scopeUpcoming($query)
     {
-        return $query->where('start_date', '>=', now()->toDateString());
+        return $query->where('start_time', '>=', now());
     }
 
     /**
@@ -167,7 +166,7 @@ class Event extends Model
      */
     public function scopeByDateRange($query, $startDate, $endDate)
     {
-        return $query->whereBetween('start_date', [$startDate, $endDate]);
+        return $query->whereBetween('start_time', [$startDate, $endDate]);
     }
 
     /**
@@ -183,7 +182,7 @@ class Event extends Model
      */
     public function getFormattedDateTime(): string
     {
-        return $this->start_date->format('M d, Y') . ' at ' . $this->start_time->format('g:i A');
+        return $this->start_time->format('M d, Y \a\t g:i A');
     }
 
     public function isAcceptingApplications()

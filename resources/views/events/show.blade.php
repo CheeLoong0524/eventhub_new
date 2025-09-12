@@ -62,7 +62,7 @@
                                 <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                                     <i class="fas fa-clock text-white"></i>
                                 </div>
-                                <span>{{ \Carbon\Carbon::parse($event->start_time)->format('M d, Y \a\t g:i A') }}</span>
+                                <span>{{ \Carbon\Carbon::parse($event->start_date)->format('M d, Y') }} at {{ \Carbon\Carbon::parse($event->start_time)->format('g:i A') }}</span>
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -71,7 +71,7 @@
                                 <div class="bg-danger rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                                     <i class="fas fa-clock text-white"></i>
                                 </div>
-                                <span>{{ \Carbon\Carbon::parse($event->end_time)->format('M d, Y \a\t g:i A') }}</span>
+                                <span>{{ \Carbon\Carbon::parse($event->end_date)->format('M d, Y') }} at {{ \Carbon\Carbon::parse($event->end_time)->format('g:i A') }}</span>
                             </div>
                         </div>
                     </div>
@@ -79,17 +79,15 @@
             </div>
 
             <div class="card shadow-sm">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <div class="card-header bg-success text-white">
                     <h5 class="card-title mb-0"><i class="fas fa-tasks me-2"></i>Activities</h5>
-                    <a href="{{ route('activities.create', ['event_id' => $event->id]) }}" class="btn btn-light btn-sm"><i class="fas fa-plus me-1"></i>Add Activity</a>
                 </div>
                 <div class="card-body">
                     @if($event->activities->isEmpty())
                         <div class="text-center py-4">
                             <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">No activities yet</h5>
-                            <p class="text-muted">Start planning by adding activities</p>
-                            <a href="{{ route('activities.create', ['event_id' => $event->id]) }}" class="btn btn-success"><i class="fas fa-plus me-1"></i>Add Activity</a>
+                            <p class="text-muted">No activities have been added to this event</p>
                         </div>
                     @else
                         <div class="table-responsive">
@@ -158,11 +156,10 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="{{ route('events.edit', $event->id) }}" class="btn btn-outline-warning"><i class="fas fa-edit me-1"></i>Edit Event</a>
-                        <a href="{{ route('activities.create', ['event_id' => $event->id]) }}" class="btn btn-outline-success"><i class="fas fa-plus me-1"></i>Add Activity</a>
-                        <form action="{{ route('events.destroy', $event->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                        <form action="{{ route('events.destroy', $event->id) }}" method="POST" onsubmit="return confirm('Are you sure?')" class="d-grid">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-outline-danger"><i class="fas fa-trash me-1"></i>Delete Event</button>
+                            <button type="submit" class="btn btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>Delete Event</button>
                         </form>
                         <a href="{{ route('events.index') }}" class="btn btn-outline-secondary"><i class="fas fa-list me-1"></i>All Events</a>
                     </div>

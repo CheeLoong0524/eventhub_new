@@ -86,6 +86,8 @@ class CustomerEventController extends Controller
             } else {
                 // Internal service consumption
                 $event = Event::with(['venue', 'activities.venue'])->findOrFail($id);
+                //$event = $this -> eventService -> getEventById($id);
+                // TRY THIS (CL)
             }
 
             // Check if event is available for customers
