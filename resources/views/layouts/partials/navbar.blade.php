@@ -16,6 +16,9 @@
                 </li>
                 @auth
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('support.index') }}"><i class="fas fa-headset me-2"></i>Customer Support</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
                     </li>
                     <li class="nav-item">

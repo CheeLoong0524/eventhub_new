@@ -19,6 +19,15 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// Customer Support routes
+Route::prefix('support')->name('support.')->group(function () {
+    Route::get('/', [App\Http\Controllers\SupportController::class, 'index'])->name('index');
+    Route::post('/contact', [App\Http\Controllers\SupportController::class, 'contact'])->name('contact');
+    Route::get('/faq', [App\Http\Controllers\SupportController::class, 'faq'])->name('faq');
+    Route::get('/check', [App\Http\Controllers\SupportController::class, 'checkInquiry'])->name('check');
+    Route::get('/inquiry/{inquiryId}', [App\Http\Controllers\SupportController::class, 'showInquiry'])->name('inquiry.show');
+});
+
 // Firebase Authentication routes
 Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/firebase', function () {
@@ -108,6 +117,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/event/{id}', [ReportController::class, 'event'])->name('reports.event');
         Route::get('/reports/payments', [ReportController::class, 'payments'])->name('reports.payments');
         Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+        
+        // Admin Support routes
+        Route::prefix('support')->name('support.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\SupportController::class, 'index'])->name('index');
+            Route::get('/inquiries', [App\Http\Controllers\Admin\SupportController::class, 'inquiries'])->name('inquiries');
+            Route::get('/inquiry/{inquiryId}', [App\Http\Controllers\Admin\SupportController::class, 'showInquiry'])->name('inquiry.show');
+            Route::post('/inquiry/{inquiryId}/update', [App\Http\Controllers\Admin\SupportController::class, 'updateInquiry'])->name('inquiry.update');
+            Route::get('/faqs', [App\Http\Controllers\Admin\SupportController::class, 'faqs'])->name('faqs');
+            Route::post('/faqs', [App\Http\Controllers\Admin\SupportController::class, 'createFaq'])->name('faqs.create');
+            Route::post('/faqs/{id}/update', [App\Http\Controllers\Admin\SupportController::class, 'updateFaq'])->name('faqs.update');
+            Route::delete('/faqs/{id}', [App\Http\Controllers\Admin\SupportController::class, 'deleteFaq'])->name('faqs.delete');
+        });
         
         // Debug route for testing
         Route::get('/debug/users', function() {

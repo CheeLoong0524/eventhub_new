@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\TicketApiController;
 use App\Http\Controllers\Api\VendorApiController_cl;
 use App\Http\Controllers\Api\VendorApiController;
 use App\Http\Controllers\Api\VendorManagementApiController;
+use App\Http\Controllers\Api\InquiryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +28,13 @@ Route::prefix('v1')->group(function () {
     Route::get('/events/{event}', [EventApiController::class, 'show']);
     Route::get('/venues/{venue}/events', [EventApiController::class, 'getByVenue']);
     
-    // Vendor information API (using existing VendorApiController)
+    // Inquiry API - Public access to inquiry data
+    Route::get('/inquiries', [InquiryController::class, 'index']);
+    Route::get('/inquiries/{inquiryId}', [InquiryController::class, 'show']);
+    Route::get('/inquiries/status/{status}', [InquiryController::class, 'getByStatus']);
+    Route::get('/inquiries/stats', [InquiryController::class, 'stats']);
+    
+    // Vendor information API
     Route::get('/vendors/{id}', [VendorApiController::class, 'getVendorInfo']);
     Route::get('/vendors/{id}/status', [VendorApiController::class, 'getVendorStatus']);
     Route::get('/vendors/search', [VendorApiController::class, 'searchVendors']);

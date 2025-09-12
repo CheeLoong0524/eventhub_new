@@ -215,6 +215,12 @@
                             <i class="fas fa-chart-line"></i><span class="ms-2">Reports</span>
                         </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white {{ request()->routeIs('admin.support*') ? 'active' : '' }}" href="{{ route('admin.support.index') }}">
+                            <i class="fas fa-headset"></i><span class="ms-2">Customer Support</span>
+                        </a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
