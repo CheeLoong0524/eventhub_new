@@ -286,10 +286,56 @@ class VendorController extends Controller
                 ->with('error', 'Your vendor registration is pending approval. You cannot browse/apply to events yet.');
         }
 
-        $events = Event::where('status', 'active')
-                      ->where('start_time', '>=', now())
-                      ->orderBy('start_time')
-                      ->paginate(12);
+        // Prefer fetching via API to keep a single source of truth
+        try {
+            $response = \Illuminate\Support\Facades\Http::get(url('/api/v1/vendor/events/accepting-applications'), [
+                'per_page' => 12,
+            ]);
+
+            if ($response->successful()) {
+                $payload = $response->json();
+                $dataWrapper = $payload['data'] ?? [];
+                $eventArray = is_array($dataWrapper) && array_key_exists('data', $dataWrapper)
+                    ? ($dataWrapper['data'] ?? [])
+                    : $dataWrapper;
+
+                $eventIds = collect($eventArray)->pluck('id')->filter()->all();
+
+                if (!empty($eventIds)) {
+                    $events = Event::with(['venue'])
+                        ->whereIn('id', $eventIds)
+                        ->orderBy('start_time')
+                        ->get();
+
+                    // Keep view contract: provide a LengthAwarePaginator-like structure
+                    $events = new \Illuminate\Pagination\LengthAwarePaginator(
+                        items: $events,
+                        total: $payload['pagination']['total'] ?? count($events),
+                        perPage: $payload['pagination']['per_page'] ?? 12,
+                        currentPage: $payload['pagination']['current_page'] ?? 1,
+                        options: ['path' => request()->url(), 'query' => request()->query()]
+                    );
+                } else {
+                    // Fallback to DB query if API returned empty data structure
+                    $events = Event::where('status', 'active')
+                                  ->where('start_time', '>=', now())
+                                  ->orderBy('start_time')
+                                  ->paginate(12);
+                }
+            } else {
+                // Fallback on non-200 responses
+                $events = Event::where('status', 'active')
+                              ->where('start_time', '>=', now())
+                              ->orderBy('start_time')
+                              ->paginate(12);
+            }
+        } catch (\Throwable $e) {
+            // Fallback on exceptions
+            $events = Event::where('status', 'active')
+                          ->where('start_time', '>=', now())
+                          ->orderBy('start_time')
+                          ->paginate(12);
+        }
 
         return view('vendor.available-events', compact('events', 'vendor'));
     }
@@ -310,7 +356,23 @@ class VendorController extends Controller
                 ->with('error', 'Your vendor registration is pending approval. You cannot view event application details yet.');
         }
 
-        $event = Event::findOrFail($id);
+        // Prefer fetching via API first, then hydrate model for the view
+        try {
+            $apiResp = \Illuminate\Support\Facades\Http::get(url("/api/v1/vendor/events/{$id}"));
+            if ($apiResp->successful()) {
+                $payload = $apiResp->json();
+                $data = $payload['data'] ?? null;
+                if (is_array($data) && isset($data['id'])) {
+                    $event = Event::with(['venue', 'activities'])->findOrFail($data['id']);
+                } else {
+                    $event = Event::with(['venue', 'activities'])->findOrFail($id);
+                }
+            } else {
+                $event = Event::with(['venue', 'activities'])->findOrFail($id);
+            }
+        } catch (\Throwable $e) {
+            $event = Event::with(['venue', 'activities'])->findOrFail($id);
+        }
         
         // Get all applications for this event (excluding cancelled applications)
         $existingApplications = $vendor->eventApplications()
@@ -684,11 +746,27 @@ class VendorController extends Controller
             'final_amount' => $finalAmount,
         ]);
 
-        // Update event's booth sales and revenue
+        // Update event's booth sales via API (single source of truth), fallback to direct update on failure
         $event = $application->event;
         $boothQuantity = $application->booth_quantity ?? 1;
-        $event->increment('booth_sold', $boothQuantity);
-        $event->updateFinancials();
+        try {
+            $token = $request->user()->createToken('internal-payment')->plainTextToken;
+            $apiResponse = \Illuminate\Support\Facades\Http::withToken($token)
+                ->patch(url("/api/v1/vendor/events/{$event->id}/booths/quantity"), [
+                    'operation' => 'subtract',
+                    'quantity' => $boothQuantity,
+                ]);
+
+            if (!$apiResponse->successful()) {
+                // Fallback: direct DB update to avoid losing state
+                $event->increment('booth_sold', $boothQuantity);
+                $event->updateFinancials();
+            }
+        } catch (\Throwable $e) {
+            // Fallback on exceptions as well
+            $event->increment('booth_sold', $boothQuantity);
+            $event->updateFinancials();
+        }
 
         return redirect()->route('vendor.bookings')
                         ->with('success', 'Payment processed successfully! Amount paid: RM ' . number_format($finalAmount, 2) . '. Your booth is now confirmed.');

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\EventApiController;
 use App\Http\Controllers\Api\TicketApiController;
 use App\Http\Controllers\Api\VendorApiController_cl;
+use App\Http\Controllers\Api\VendorApiController;
 use App\Http\Controllers\Api\VendorManagementApiController;
 
 /*
@@ -17,6 +18,7 @@ use App\Http\Controllers\Api\VendorManagementApiController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
 
 // Public API routes (no authentication required)
 Route::prefix('v1')->group(function () {

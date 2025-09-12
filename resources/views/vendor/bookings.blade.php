@@ -46,7 +46,7 @@
                         </td>
                         <td>
                             <div>
-                                <strong>{{ $booking->event->title ?? $booking->event->name ?? 'Event' }}</strong>
+                                <strong>{{ $booking->event->name ?? 'Event' }}</strong>
                             </div>
                             <small class="text-muted">{{ $booking->event->description ?? 'No description available' }}</small>
                         </td>

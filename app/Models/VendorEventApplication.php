@@ -73,6 +73,11 @@ class VendorEventApplication extends Model
         return $this->status === 'pending';
     }
 
+	public function isUnderReview(): bool
+	{
+		return $this->status === 'pending';
+	}
+
 
     public function isApproved(): bool
     {
