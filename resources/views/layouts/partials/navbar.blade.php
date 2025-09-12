@@ -18,6 +18,17 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
                     </li>
+                    @if(Auth::user()->role === 'customer')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('customer.events.index') }}"><i class="fas fa-calendar me-2"></i>Events</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('cart.index') }}">
+                                <i class="fas fa-shopping-cart me-2"></i>Cart
+                                <span class="badge bg-warning text-dark cart-count ms-1">0</span>
+                            </a>
+                        </li>
+                    @endif
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('profile.show') }}"><i class="fas fa-user-circle me-2"></i>Profile</a>
                     </li>

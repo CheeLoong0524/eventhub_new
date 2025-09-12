@@ -13,6 +13,12 @@ use App\Http\Controllers\VendorController;
 use App\Http\Controllers\Admin\VendorManagementController;
 use App\Http\Controllers\Admin\EventApplicationController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\EventBookingPaymentControllerYf;
+use App\Http\Controllers\PaymentGatewayController;
+use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\CustomerEventController;
+use App\Http\Controllers\CustomerDashboardController;
 
 // Public routes
 Route::get('/', function () {
@@ -53,6 +59,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
 // Test search route (temporary)
 Route::get('/test-search-route', function() {
     return response()->json(['message' => 'Test search route works!']);
+});
+
+// Test basic route
+Route::get('/test-basic', function() {
+    return 'Basic route works!';
+});
+
+// Test customer route without middleware
+Route::get('/test-customer-events', function() {
+    $events = \App\Models\Event::where('status', 'active')->get();
+    return response()->json(['events' => $events->count()]);
+});
+
+// Test customer event details without middleware
+Route::get('/test-customer-event-details/{id}', function($id) {
+    $event = \App\Models\Event::find($id);
+    if (!$event) {
+        return response()->json(['error' => 'Event not found'], 404);
+    }
+    return response()->json(['event' => $event->name, 'status' => 'success']);
 });
 
 // Protected routes
@@ -160,11 +186,67 @@ Route::middleware('auth')->group(function () {
     });
     
     // Customer routes
-    Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function () {
-        Route::get('/dashboard', function () {
-            $user = Auth::user();
-            return view('dashboard.customer', compact('user'));
-        })->name('dashboard');
+    Route::prefix('customer')->name('customer.')->group(function () {
+        Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+        
+        // Event viewing (customer-specific)
+        Route::get('/events', [CustomerEventController::class, 'index'])->name('events.index');
+        Route::get('/events/{id}', [CustomerEventController::class, 'show'])->name('events.show');
+        
+        // API routes for AJAX
+        Route::get('/events/api/list', [CustomerEventController::class, 'apiIndex'])->name('events.api.index');
+        Route::get('/events/api/{event}', [CustomerEventController::class, 'apiShow'])->name('events.api.show');
+        Route::get('/events/api/featured', [CustomerEventController::class, 'featured'])->name('events.api.featured');
+        Route::get('/events/api/upcoming', [CustomerEventController::class, 'upcoming'])->name('events.api.upcoming');
+    });
+    
+    // Cart routes (authenticated users only)
+    Route::prefix('cart')->name('cart.')->group(function () {
+        Route::get('/', [CartController::class, 'index'])->name('index');
+        Route::post('/add', [CartController::class, 'addItem'])->name('add');
+        Route::put('/items/{cartItem}', [CartController::class, 'updateItem'])->name('update');
+        Route::delete('/items/{cartItem}', [CartController::class, 'removeItem'])->name('remove');
+        Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
+        Route::get('/summary', [CartController::class, 'summary'])->name('summary');
+    });
+    
+    // Event Booking Payment routes (authenticated users only)
+    Route::prefix('event-booking')->name('event-booking.')->group(function () {
+        Route::get('/payment-form-yf', [EventBookingPaymentControllerYf::class, 'show'])->name('payment-form-yf');
+        Route::post('/payment-process-yf', [EventBookingPaymentControllerYf::class, 'process'])->name('payment-process-yf');
+        Route::get('/payment-success-yf', [EventBookingPaymentControllerYf::class, 'success'])->name('payment-success-yf');
+        Route::get('/bank-transfer-instructions-yf', [EventBookingPaymentControllerYf::class, 'bankTransfer'])->name('bank-transfer-instructions-yf');
+        Route::get('/payment-receipt-yf', [EventBookingPaymentControllerYf::class, 'receipt'])->name('payment-receipt-yf');
+    });
+
+    // Payment Gateway routes (authenticated users only)
+    Route::prefix('payment-gateway')->name('payment-gateway.')->group(function () {
+        Route::get('/gateway', [PaymentGatewayController::class, 'showGateway'])->name('show');
+        Route::post('/process', [PaymentGatewayController::class, 'processGateway'])->name('process');
+    });
+});
+
+// API Routes for Receipt Service
+Route::prefix('api')->name('api.')->group(function () {
+    // Receipt API routes (authenticated users only)
+    Route::middleware('auth')->group(function () {
+        // Generate receipt after payment
+        Route::post('/receipt', [ReceiptController::class, 'generateReceipt'])->name('receipt.generate');
+        
+        // Get user's receipts
+        Route::get('/receipts', [ReceiptController::class, 'getUserReceipts'])->name('receipts.user');
+        
+        // Get receipt statistics (Admin only)
+        Route::get('/receipts/stats', [ReceiptController::class, 'getReceiptStats'])->name('receipts.stats');
+        
+        // Get specific receipt
+        Route::get('/receipt/{orderId}', [ReceiptController::class, 'getReceipt'])->name('receipt.get');
+        
+        // Get receipt data (replaces PDF download)
+        Route::get('/receipt/{orderId}/data', [ReceiptController::class, 'getReceiptData'])->name('receipt.data');
+        
+        // Get receipt as HTML
+        Route::get('/receipt/{orderId}/html', [ReceiptController::class, 'getReceiptHtml'])->name('receipt.html');
     });
 });
 

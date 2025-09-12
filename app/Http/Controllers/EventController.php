@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Activity;
 use App\Builders\EventDirector;
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 
 class EventController extends Controller
 {
@@ -72,13 +74,41 @@ class EventController extends Controller
     }
 
     // Show single event details
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        // Load the event with its venue + activities (and their venues)
-        $event = \App\Models\Event::with(['venue', 'activities.venue'])->findOrFail($id);
+        try {
+            // Auto-detect: if request has 'use_api' query param, consume externally
+            $useApi = $request->query('use_api', false);
+            
+            if ($useApi) {
+                // External API consumption (simulate another module)
+                $response = \Illuminate\Support\Facades\Http::timeout(10)->get(url("/api/v1/events/{$id}"));
+                
+                if ($response->failed()) {
+                    throw new \Exception('Failed to fetch event from API');
+                }
+                
+                $apiData = $response->json();
+                $eventData = $apiData['data'];
+                
+                // Convert API data back to Event model for compatibility
+                $event = new \App\Models\Event($eventData);
+                $event->exists = true;
+                $event->id = $eventData['id'];
+            } else {
+                // Internal service consumption
+                $event = \App\Models\Event::with(['venue', 'activities.venue'])->findOrFail($id);
+            }
 
-        return view('events.show', compact('event'));
+            return view('events.show', compact('event'));
+            
+        } catch (\Exception $e) {
+            // Fallback to internal consumption if API fails
+            $event = \App\Models\Event::with(['venue', 'activities.venue'])->findOrFail($id);
+            return view('events.show', compact('event'));
+        }
     }
+
 
     // Show edit form
     public function edit($id)

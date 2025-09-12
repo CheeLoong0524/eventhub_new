@@ -23,8 +23,21 @@
 
     @yield('styles')
     <style>
-        body { min-height: 100vh; display: flex; flex-direction: column; }
-        .navbar { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        body { 
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar { 
+            position: relative;
+            z-index: 1030;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15); 
+            width: 100%;
+            order: -1;
+            flex-shrink: 0;
+        }
         .navbar-brand { font-weight: 600; font-size: 1.25rem; }
         .nav-link { font-weight: 500; transition: color 0.2s ease; color: rgba(255,255,255,0.9) !important; }
         .nav-link:hover { color: #fff !important; }
@@ -33,10 +46,16 @@
         .avatar-initials { width: 32px; height: 32px; border-radius: 50%; background: #6c757d; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; }
         .dropdown-menu { border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 10px; }
         footer { margin-top: auto; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); }
+        main { 
+            margin: 0;
+            padding: 0;
+        }
     </style>
 </head>
 <body>
-    @include('layouts.partials.navbar')
+    @unless(request()->routeIs('event-booking.payment-receipt-yf'))
+        @include('layouts.partials.navbar')
+    @endunless
 
     <!-- Main Content -->
     <main class="flex-grow-1 py-4">
@@ -62,6 +81,7 @@
     </main>
 
     <!-- Footer -->
+    @unless(request()->routeIs('event-booking.payment-receipt-yf'))
     <footer class="text-white py-4 mt-auto" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center gap-3">
@@ -78,6 +98,7 @@
             </div>
         </div>
     </footer>
+    @endunless
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -89,6 +110,29 @@
                 firebase.auth().signOut().catch(() => {});
             }
             return true;
+        }
+        
+        // Update cart count on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+        });
+        
+        function updateCartCount() {
+            const cartCountElement = document.querySelector('.cart-count');
+            if (cartCountElement) {
+                fetch('{{ route("cart.summary") }}', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    cartCountElement.textContent = data.total_items || 0;
+                })
+                .catch(error => {
+                    console.error('Error updating cart count:', error);
+                });
+            }
         }
     </script>
     
