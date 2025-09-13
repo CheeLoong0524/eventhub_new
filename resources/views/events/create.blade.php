@@ -79,6 +79,18 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"><i class="fas fa-toggle-on me-1"></i>Status <span class="text-danger">*</span></label>
+                                <select name="status" class="form-select" required>
+                                    <option value="draft">Draft</option>
+                                    <option value="active" selected>Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                                <small class="text-muted">Event status - Active events accept bookings and applications.</small>
+                            </div>
+                        </div>
+
                         <h6 class="text-uppercase text-muted small mb-3 mt-2">Schedule</h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">

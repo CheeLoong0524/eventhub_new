@@ -277,6 +277,7 @@ Route::prefix('api')->name('api.')->group(function () {
 Route::post('/activities', [ActivityController::class, 'store'])->name('activities.store');
 Route::get('/activities/create', [ActivityController::class, 'create'])->name('activities.create');
 Route::resource('events', EventController::class);
+Route::patch('events/{event}/status', [EventController::class, 'updateStatus'])->name('events.status.update');
 
 // Notification routes
 Route::middleware('auth')->group(function () {

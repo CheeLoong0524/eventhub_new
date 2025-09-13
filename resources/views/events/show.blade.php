@@ -16,7 +16,13 @@
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
                 <h1 class="h3 mb-0 text-primary"><i class="fas fa-calendar me-2"></i>{{ $event->name }}</h1>
-                <p class="text-muted mb-0">Event details and activities</p>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-{{ $event->status === 'active' ? 'success' : ($event->status === 'draft' ? 'warning' : 'secondary') }} fs-6 me-2">
+                        <i class="fas fa-{{ $event->status === 'active' ? 'check-circle' : ($event->status === 'draft' ? 'edit' : 'pause-circle') }} me-1"></i>
+                        {{ ucfirst($event->status) }}
+                    </span>
+                    <p class="text-muted mb-0">Event details and activities</p>
+                </div>
             </div>
             <div>
                 <a href="{{ route('events.edit', $event->id) }}" class="btn btn-warning me-2"><i class="fas fa-edit me-1"></i>Edit</a>
@@ -75,6 +81,120 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Ticket Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0"><i class="fas fa-ticket-alt me-2"></i>Ticket Information</h5>
+                </div>
+                <div class="card-body">
+                    @if($event->ticket_price && $event->ticket_quantity)
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-uppercase text-muted small mb-1">Price per Ticket</h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-dollar-sign text-white"></i>
+                                    </div>
+                                    <span class="h5 mb-0 text-success">RM {{ number_format($event->ticket_price, 2) }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-uppercase text-muted small mb-1">Ticket Available</h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-info rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-ticket-alt text-white"></i>
+                                    </div>
+                                    <span class="h5 mb-0 text-info">{{ $event->ticket_quantity }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-uppercase text-muted small mb-1">Sold Tickets</h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-shopping-cart text-white"></i>
+                                    </div>
+                                    <span class="h5 mb-0 text-warning">{{ $event->ticket_sold }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-uppercase text-muted small mb-1">Revenue</h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-chart-line text-white"></i>
+                                    </div>
+                                    <span class="h5 mb-0 text-success">RM {{ number_format($event->calculateTicketRevenue(), 2) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="text-center py-4">
+                            <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Ticket Information</h5>
+                            <p class="text-muted">Tickets are not available for this event</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Vendor Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-store me-2"></i>Vendor Information</h5>
+                </div>
+                <div class="card-body">
+                    @if($event->booth_price && $event->booth_quantity)
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-uppercase text-muted small mb-1">Price per Booth</h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-dollar-sign text-white"></i>
+                                    </div>
+                                    <span class="h5 mb-0 text-success">RM {{ number_format($event->booth_price, 2) }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-uppercase text-muted small mb-1">Booth Available</h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-info rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-store text-white"></i>
+                                    </div>
+                                    <span class="h5 mb-0 text-info">{{ $event->booth_quantity }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-uppercase text-muted small mb-1">Sold Booths</h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-handshake text-white"></i>
+                                    </div>
+                                    <span class="h5 mb-0 text-warning">{{ $event->booth_sold }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-uppercase text-muted small mb-1">Revenue</h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-chart-line text-white"></i>
+                                    </div>
+                                    <span class="h5 mb-0 text-success">RM {{ number_format($event->calculateBoothRevenue(), 2) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="text-center py-4">
+                            <i class="fas fa-store fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Vendor Information</h5>
+                            <p class="text-muted">Vendor booths are not available for this event</p>
+                        </div>
+                    @endif
                 </div>
             </div>
 

@@ -41,6 +41,7 @@ class EventController extends Controller
             'start_time' => 'required|date',
             'end_time'   => 'required|date|after:start_time',
             'organizer'  => 'required|string|max:255',
+            'status'     => 'required|in:draft,active,inactive',
 
             // Pricing and availability
             'booth_price'    => 'required|numeric|min:0',
@@ -63,10 +64,7 @@ class EventController extends Controller
             'activities.*.duration'   => 'required|integer|min:1',
             'activities.*.status'     => 'nullable|in:pending,in_progress,completed',
             'activities.*.venue_id'   => 'required|exists:venues,id',
-        ]);
-
-        // Set default status
-        $validated['status'] = 'active';
+        ]); // Hardcoded
 
         $event = Event::create($validated);
 
@@ -108,6 +106,7 @@ class EventController extends Controller
             'start_time' => 'required|date',
             'end_time'   => 'required|date|after:start_time',
             'organizer'  => 'required|string|max:255',
+            'status'     => 'required|in:draft,active,inactive',
 
             // Pricing and availability
             'booth_price'    => 'required|numeric|min:0',
@@ -175,5 +174,18 @@ class EventController extends Controller
         $event->delete();
 
         return redirect()->route('events.index')->with('success', 'Event deleted successfully!');
+    }
+
+    // Update event status
+    public function updateStatus(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:draft,active,inactive'
+        ]);
+
+        $event = Event::findOrFail($id);
+        $event->update(['status' => $validated['status']]);
+
+        return redirect()->back()->with('success', 'Event status updated successfully!');
     }
 }

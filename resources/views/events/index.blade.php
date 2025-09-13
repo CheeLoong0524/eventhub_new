@@ -117,6 +117,9 @@
                                     <i class="fas fa-user-tie me-1"></i>Organizer
                                 </th>
                                 <th class="border-0">
+                                    <i class="fas fa-toggle-on me-1"></i>Status
+                                </th>
+                                <th class="border-0">
                                     <i class="fas fa-clock me-1"></i>Date & Time
                                 </th>
                                 <th class="border-0">
@@ -165,6 +168,12 @@
                                     </div>
                                 </td>
                                 <td>
+                                    <span class="badge bg-{{ $event->status === 'active' ? 'success' : ($event->status === 'draft' ? 'warning' : 'secondary') }} fs-6">
+                                        <i class="fas fa-{{ $event->status === 'active' ? 'check-circle' : ($event->status === 'draft' ? 'edit' : 'pause-circle') }} me-1"></i>
+                                        {{ ucfirst($event->status) }}
+                                    </span>
+                                </td>
+                                <td>
                                     <div>
                                         <strong>{{ \Carbon\Carbon::parse($event->start_time)->format('M d, Y') }}</strong>
                                         <br>
@@ -181,16 +190,24 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('events.show', $event->id) }}" 
-                                           class="btn btn-outline-info btn-sm" 
-                                           title="View Event">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('events.edit', $event->id) }}" 
-                                           class="btn btn-outline-warning btn-sm" 
-                                           title="Edit Event">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
+                                        <form action="{{ route('events.show', $event->id) }}" 
+                                              method="GET" 
+                                              class="d-inline">
+                                            <button type="submit" 
+                                                    class="btn btn-outline-info btn-sm" 
+                                                    title="View Event">
+                                                <i class="fas fa-eye me-1"></i>View
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('events.edit', $event->id) }}" 
+                                              method="GET" 
+                                              class="d-inline">
+                                            <button type="submit" 
+                                                    class="btn btn-outline-warning btn-sm" 
+                                                    title="Edit Event">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </button>
+                                        </form>
                                         <form action="{{ route('events.destroy', $event->id) }}" 
                                               method="POST" 
                                               class="d-inline"
@@ -200,7 +217,7 @@
                                             <button type="submit" 
                                                     class="btn btn-outline-danger btn-sm" 
                                                     title="Delete Event">
-                                                <i class="fas fa-trash"></i>
+                                                <i class="fas fa-trash me-1"></i>Delete
                                             </button>
                                         </form>
                                     </div>

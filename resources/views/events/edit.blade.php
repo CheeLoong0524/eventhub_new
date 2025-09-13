@@ -101,6 +101,26 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">
+                                    <i class="fas fa-toggle-on me-1"></i>Status <span class="text-danger">*</span>
+                                </label>
+                                <select name="status" 
+                                        id="status"
+                                        class="form-select @error('status') is-invalid @enderror" 
+                                        required>
+                                    <option value="draft" {{ old('status', $event->status) == 'draft' ? 'selected' : '' }}>Draft</option>
+                                    <option value="active" {{ old('status', $event->status) == 'active' ? 'selected' : '' }}>Active</option>
+                                    <option value="inactive" {{ old('status', $event->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                </select>
+                                @error('status')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">Event status - Active events accept bookings and applications.</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
                                 <label for="start_time" class="form-label">
                                     <i class="fas fa-clock me-1"></i>Start Time <span class="text-danger">*</span>
                                 </label>
@@ -108,7 +128,7 @@
                                        name="start_time" 
                                        id="start_time"
                                        class="form-control @error('start_time') is-invalid @enderror" 
-                                       value="{{ old('start_time', $event->start_date . 'T' . $event->start_time) }}"
+                                       value="{{ old('start_time', $event->start_time ? $event->start_time->format('Y-m-d\TH:i') : '') }}"
                                        required>
                                 @error('start_time')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -123,7 +143,7 @@
                                        name="end_time" 
                                        id="end_time"
                                        class="form-control @error('end_time') is-invalid @enderror" 
-                                       value="{{ old('end_time', $event->end_date . 'T' . $event->end_time) }}"
+                                       value="{{ old('end_time', $event->end_time ? $event->end_time->format('Y-m-d\TH:i') : '') }}"
                                        required>
                                 @error('end_time')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -305,8 +325,8 @@
                                             <h6 class="mb-0 text-primary">
                                                 <i class="fas fa-stream me-2"></i>Activity #{{ $idx + 1 }}
                                             </h6>
-                                            <button type="button" class="btn btn-outline-danger btn-sm remove-activity">
-                                                <i class="fas fa-trash me-1"></i>Remove
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-activity" data-activity-id="{{ $activity->id }}">
+                                                <i class="fas fa-trash me-1"></i>Delete
                                             </button>
                                         </div>
 
@@ -375,7 +395,7 @@
                             </div>
                         </div>
 
-                        <!-- Template for new activity -->
+                        <!-- Activity Template (hidden) -->
                         <template id="activity-template">
                             <div class="card mb-4 activity-item border border-primary rounded-3 shadow-sm" style="border-width: 10px;" data-index="__INDEX__">
                                 <div class="card-body">
@@ -383,8 +403,8 @@
                                         <h6 class="mb-0 text-primary">
                                             <i class="fas fa-stream me-2"></i>Activity #__HUMAN_INDEX__
                                         </h6>
-                                        <button type="button" class="btn btn-outline-danger btn-sm remove-activity">
-                                            <i class="fas fa-trash me-1"></i>Remove
+                                        <button type="button" class="btn btn-outline-danger btn-sm remove-activity" data-activity-id="">
+                                            <i class="fas fa-trash me-1"></i>Delete
                                         </button>
                                     </div>
 
@@ -494,121 +514,62 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Initializing edit activity management...');
-    
     const activitiesContainer = document.getElementById('activities-wrapper');
     const addButton = document.getElementById('add-activity');
-
-    console.log('Elements found:', {
-        container: !!activitiesContainer,
-        button: !!addButton
-    });
 
     if (!activitiesContainer || !addButton) {
         console.error('Missing required elements');
         return;
     }
 
-    // Get initial count
     let activityCount = activitiesContainer.querySelectorAll('.activity-item').length;
-    console.log('Initial activity count:', activityCount);
-
-    function createActivityHTML(index) {
-        return `
-            <div class="card mb-4 activity-item border border-primary rounded-3 shadow-sm" style="border-width: 10px;" data-index="${index}">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0 text-primary">
-                            <i class="fas fa-stream me-2"></i>Activity #${index + 1}
-                        </h6>
-                        <button type="button" class="btn btn-outline-danger btn-sm remove-activity">
-                            <i class="fas fa-trash me-1"></i>Remove
-                        </button>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Name <span class="text-danger">*</span></label>
-                            <input type="text" name="activities[${index}][name]" class="form-control" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Venue <span class="text-danger">*</span></label>
-                            <select name="activities[${index}][venue_id]" class="form-select" required>
-                                @foreach($venues as $venue)
-                                    <option value="{{ $venue->id }}">{{ $venue->name }} (Cap: {{ $venue->capacity }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Start Time <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="activities[${index}][start_time]" class="form-control" required>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">Duration (min) <span class="text-danger">*</span></label>
-                            <input type="number" name="activities[${index}][duration]" class="form-control" min="1" required>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">Status</label>
-                            <select name="activities[${index}][status]" class="form-select">
-                                <option value="pending" selected>Pending</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label">Description</label>
-                        <textarea name="activities[${index}][description]" class="form-control" rows="2"></textarea>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
 
     function addActivity() {
-        console.log('Adding new activity...');
+        // Create new activity using the template
+        const template = document.getElementById('activity-template');
+        if (!template) {
+            console.error('Activity template not found');
+            return;
+        }
         
-        const newActivityHTML = createActivityHTML(activityCount);
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = newActivityHTML;
-        const newActivity = tempDiv.firstElementChild;
+        const newActivity = template.content.cloneNode(true);
+        const activityElement = newActivity.querySelector('.activity-item');
         
-        activitiesContainer.appendChild(newActivity);
+        // Update index and form names
+        activityElement.setAttribute('data-index', activityCount);
+        activityElement.querySelector('h6').innerHTML = `<i class="fas fa-stream me-2"></i>Activity #${activityCount + 1}`;
         
-        // Bind remove event to the new activity
-        const removeBtn = newActivity.querySelector('.remove-activity');
+        // Update form field names
+        activityElement.querySelectorAll('input, select, textarea').forEach(field => {
+            if (field.name) {
+                field.name = field.name.replace('__INDEX__', activityCount);
+            }
+        });
+        
+        activitiesContainer.appendChild(activityElement);
+        bindActivityEvents(activityElement);
+        activityCount++;
+    }
+
+    function bindActivityEvents(activityElement) {
+        const removeBtn = activityElement.querySelector('.remove-activity');
+        
         if (removeBtn) {
             removeBtn.addEventListener('click', function() {
-                console.log('Removing activity...');
-                newActivity.remove();
+                activityElement.remove();
                 reindexActivities();
             });
         }
-        
-        activityCount++;
-        console.log('Activity added. New count:', activityCount);
     }
 
     function reindexActivities() {
-        console.log('Reindexing activities...');
         const activities = activitiesContainer.querySelectorAll('.activity-item');
         
         activities.forEach((activity, index) => {
-            // Update data-index attribute
             activity.setAttribute('data-index', index);
+            activity.querySelector('h6').innerHTML = `<i class="fas fa-stream me-2"></i>Activity #${index + 1}`;
             
-            // Update header
-            const header = activity.querySelector('h6');
-            if (header) {
-                const icon = header.querySelector('i');
-                const iconHTML = icon ? icon.outerHTML + ' ' : '';
-                header.innerHTML = iconHTML + `Activity #${index + 1}`;
-            }
-            
-            // Update all form field names
-            const formFields = activity.querySelectorAll('input, select, textarea');
-            formFields.forEach(field => {
+            activity.querySelectorAll('input, select, textarea').forEach(field => {
                 if (field.name) {
                     field.name = field.name.replace(/activities\[\d+\]/, `activities[${index}]`);
                 }
@@ -616,32 +577,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         activityCount = activities.length;
-        console.log('Reindexing complete. Count:', activityCount);
     }
 
-    // Add button event listener
+    // Event listeners
     addButton.addEventListener('click', function(e) {
         e.preventDefault();
-        console.log('Add button clicked');
         addActivity();
     });
 
-    // Bind remove events to existing activities
-    activitiesContainer.querySelectorAll('.remove-activity').forEach(btn => {
-        btn.addEventListener('click', function() {
-            console.log('Remove button clicked');
-            const activity = this.closest('.activity-item');
-            if (activity) {
-                activity.remove();
-                reindexActivities();
-            }
-        });
+    // Bind events to existing activities
+    activitiesContainer.querySelectorAll('.activity-item').forEach(activity => {
+        bindActivityEvents(activity);
     });
 
     // Initial reindex
     reindexActivities();
-    console.log('Edit activity management initialized successfully');
 });
-    window.addActivity = addActivity;
 </script>
 @endsection
