@@ -6,7 +6,7 @@ use App\Models\EventOrderYf;
 use App\Models\EventPaymentYf;
 use App\Services\PaymentService;
 use App\Services\ReceiptService;
-use App\Services\TicketService;
+use App\Services\EventService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -18,13 +18,13 @@ class PaymentGatewayController extends Controller
 {
     protected $paymentService;
     protected $receiptService;
-    protected $ticketService;
+    protected $eventService;
 
-    public function __construct(PaymentService $paymentService, ReceiptService $receiptService, TicketService $ticketService)
+    public function __construct(PaymentService $paymentService, ReceiptService $receiptService, EventService $eventService)
     {
         $this->paymentService = $paymentService;
         $this->receiptService = $receiptService;
-        $this->ticketService = $ticketService;
+        $this->eventService = $eventService;
     }
 
     /**
@@ -449,27 +449,22 @@ class PaymentGatewayController extends Controller
                 return;
             }
         
-            // Update event ticket quantities using existing ticket API
+            // Update event ticket quantities using EventService
             $event = \App\Models\Event::find($freshOrder->event_id);
             if ($event) {
                 $totalQuantity = array_sum(array_column($freshOrder->ticket_details, 'quantity'));
                 
                 Log::info("Before update - Event {$event->id} ({$event->name}): available={$event->available_tickets}, sold={$event->ticket_sold}");
                 
-                // Use the existing ticket API to update quantities
-                $updateData = [
-                    'quantity' => $totalQuantity,
-                    'operation' => 'subtract' // subtract from available tickets (add to sold)
-                ];
-                
                 try {
-                    $result = $this->ticketService->updateTicketQuantity($event, $updateData, false); // false = use internal API
-                    Log::info("Ticket API update result: " . json_encode($result));
+                    // Use EventService to update ticket quantities
+                    $result = $this->eventService->updateTicketQuantity($event->id, $totalQuantity);
+                    Log::info("EventService update result: " . json_encode($result));
                     
                     $event->refresh();
                     Log::info("After update - Event {$event->id} ({$event->name}): available={$event->available_tickets}, sold={$event->ticket_sold}");
                 } catch (\Exception $e) {
-                    Log::error("Failed to update ticket availability via API for event {$event->id}: " . $e->getMessage());
+                    Log::error("Failed to update ticket availability via EventService for event {$event->id}: " . $e->getMessage());
                     throw new \Exception("Failed to update ticket availability: " . $e->getMessage());
                 }
             } else {

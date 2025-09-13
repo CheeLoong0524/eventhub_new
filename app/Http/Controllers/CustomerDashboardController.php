@@ -33,7 +33,7 @@ class CustomerDashboardController extends Controller
             $eventDate = $event->start_date ? $event->start_date->toDateString() : 
                         ($event->start_time ? $event->start_time->toDateString() : null);
             
-            return $eventDate && $eventDate <= now()->toDateString();
+            return $eventDate && $eventDate < now()->toDateString();
         })->count();
         
         $upcomingEvents = $userOrders->filter(function($order) {
@@ -41,7 +41,7 @@ class CustomerDashboardController extends Controller
             $eventDate = $event->start_date ? $event->start_date->toDateString() : 
                         ($event->start_time ? $event->start_time->toDateString() : null);
             
-            return !$eventDate || $eventDate > now()->toDateString();
+            return !$eventDate || $eventDate >= now()->toDateString();
         })->count();
         
         // Debug logging
@@ -60,21 +60,21 @@ class CustomerDashboardController extends Controller
                     'start_date' => $event->start_date ? $event->start_date->toDateString() : null,
                     'start_time' => $event->start_time ? $event->start_time->toDateString() : null,
                     'calculated_date' => $eventDate,
-                    'is_past' => $eventDate ? $eventDate <= now()->toDateString() : false
+                    'is_past' => $eventDate ? $eventDate < now()->toDateString() : false
                 ];
             })->toArray()
         ]);
         
         $totalSpent = $userOrders->sum('total_amount');
 
-        // Get upcoming events list (next 3) - events that haven't passed yet (excluding today)
+        // Get upcoming events list (next 3) - events that haven't passed yet
         $upcomingEventsList = $userOrders
             ->filter(function($order) {
                 $event = $order->event;
                 $eventDate = $event->start_date ? $event->start_date->toDateString() : 
                             ($event->start_time ? $event->start_time->toDateString() : null);
                 
-                return !$eventDate || $eventDate > now()->toDateString();
+                return !$eventDate || $eventDate >= now()->toDateString();
             })
             ->sortBy(function($order) {
                 $event = $order->event;
