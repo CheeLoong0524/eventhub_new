@@ -592,7 +592,7 @@
                                     $event = $order->event;
                                     $eventDate = $event->start_date ? $event->start_date->toDateString() : 
                                                 ($event->start_time ? $event->start_time->toDateString() : null);
-                                    $isAttended = $eventDate && $eventDate < now()->toDateString();
+                                    $isAttended = $eventDate && $eventDate <= now()->toDateString();
                                 @endphp
                                 <div class="timeline-icon {{ $isAttended ? 'bg-success' : 'bg-warning' }}">
                                     <i class="fas fa-{{ $isAttended ? 'check-circle' : 'calendar' }} text-white"></i>
@@ -862,7 +862,8 @@ function showReceiptDetailModal(receiptData) {
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            timeZone: 'Asia/Kuala_Lumpur'
         });
     } else if (receipt.created_at) {
         orderDate = new Date(receipt.created_at).toLocaleDateString('en-MY', {
@@ -870,7 +871,8 @@ function showReceiptDetailModal(receiptData) {
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            timeZone: 'Asia/Kuala_Lumpur'
         });
     }
     
@@ -896,16 +898,16 @@ function showReceiptDetailModal(receiptData) {
         console.log('Event time:', receipt.event.time);
         
         if (receipt.event.date) {
-            eventDate = new Date(receipt.event.date).toLocaleDateString('en-MY');
+            eventDate = new Date(receipt.event.date).toLocaleDateString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' });
         } else if (receipt.event.time) {
-            eventDate = new Date(receipt.event.time).toLocaleDateString('en-MY');
+            eventDate = new Date(receipt.event.time).toLocaleDateString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' });
         }
     }
     
     // Handle time - check time field
     let eventTime = 'TBA';
     if (receipt.event && receipt.event.time) {
-        eventTime = new Date(receipt.event.time).toLocaleTimeString('en-MY', {hour: '2-digit', minute: '2-digit'});
+        eventTime = new Date(receipt.event.time).toLocaleTimeString('en-MY', {hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kuala_Lumpur'});
     }
     
     console.log('Calculated event date:', eventDate);

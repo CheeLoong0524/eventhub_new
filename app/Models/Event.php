@@ -68,22 +68,25 @@ class Event extends Model
      * METHODS ------------------------------------------------- 
      */
     /**
-     * Check if event is upcoming
+     * Check if event is upcoming (excluding today)
      */
     public function isUpcoming(): bool
     {
-        return $this->start_time >= now();
+        if (!$this->start_time) {
+            return false; // If no start_time, consider it not upcoming
+        }
+        return $this->start_time->toDateString() > now()->toDateString();
     }
 
     /**
-     * Check if event is past
+     * Check if event is past (including today)
      */
     public function isPast(): bool
     {
         if (!$this->start_time) {
             return false; // If no start_time, consider it not past
         }
-        return $this->start_time < now();
+        return $this->start_time->toDateString() <= now()->toDateString();
     }
 
     /**
@@ -128,11 +131,11 @@ class Event extends Model
     }
 
     /**
-     * Scope for upcoming events
+     * Scope for upcoming events (excluding today)
      */
     public function scopeUpcoming($query)
     {
-        return $query->where('start_time', '>=', now());
+        return $query->where('start_time', '>', now()->endOfDay());
     }
 
     /**
