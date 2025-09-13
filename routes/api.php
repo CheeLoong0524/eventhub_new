@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\VendorApiController_cl;
 use App\Http\Controllers\Api\VendorManagementApiController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\Api\InquiryController;
+use App\Http\Controllers\Api\AdminInquiryApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,9 +32,15 @@ Route::prefix('v1')->group(function () {
     
     // Inquiry API - Public access to inquiry data
     Route::get('/inquiries', [InquiryController::class, 'index']);
-    Route::get('/inquiries/{inquiryId}', [InquiryController::class, 'show']);
-    Route::get('/inquiries/status/{status}', [InquiryController::class, 'getByStatus']);
     Route::get('/inquiries/stats', [InquiryController::class, 'stats']);
+    Route::get('/inquiries/status/{status}', [InquiryController::class, 'getByStatus']);
+    Route::get('/inquiries/{inquiryId}', [InquiryController::class, 'show']);
+    
+    // Admin Inquiry API - Complete inquiry data with admin replies
+    Route::get('/admin/inquiries', [AdminInquiryApiController::class, 'index']);
+    Route::get('/admin/inquiries/stats', [AdminInquiryApiController::class, 'stats']);
+    Route::get('/admin/inquiries/status/{status}', [AdminInquiryApiController::class, 'getByStatus']);
+    Route::get('/admin/inquiries/{inquiryId}', [AdminInquiryApiController::class, 'show']);
     
     // Vendor information API
     

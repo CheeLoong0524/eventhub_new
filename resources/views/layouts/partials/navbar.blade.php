@@ -40,6 +40,20 @@
             
             <ul class="navbar-nav">
                 @auth
+                    <!-- Notifications -->
+                    <li class="nav-item me-3">
+                        @php
+                            $notifications = \App\Models\Notification::where('user_id', auth()->id())
+                                ->orderBy('created_at', 'desc')
+                                ->limit(10)
+                                ->get();
+                            $unreadCount = \App\Models\Notification::where('user_id', auth()->id())
+                                ->where('status', 'unread')
+                                ->count();
+                        @endphp
+                        <x-notifications :notifications="$notifications" :unreadCount="$unreadCount" />
+                    </li>
+                    
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-user me-2"></i>{{ Auth::user()->name }}

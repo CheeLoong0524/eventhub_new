@@ -13,6 +13,7 @@ use App\Http\Controllers\VendorController;
 use App\Http\Controllers\Admin\VendorManagementController;
 use App\Http\Controllers\Admin\EventApplicationController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Customer\InquiryController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\EventBookingPaymentControllerYf;
 use App\Http\Controllers\PaymentGatewayController;
@@ -30,8 +31,11 @@ Route::prefix('support')->name('support.')->group(function () {
     Route::get('/', [App\Http\Controllers\SupportController::class, 'index'])->name('index');
     Route::post('/contact', [App\Http\Controllers\SupportController::class, 'contact'])->name('contact');
     Route::get('/faq', [App\Http\Controllers\SupportController::class, 'faq'])->name('faq');
-    Route::get('/check', [App\Http\Controllers\SupportController::class, 'checkInquiry'])->name('check');
-    Route::get('/inquiry/{inquiryId}', [App\Http\Controllers\SupportController::class, 'showInquiry'])->name('inquiry.show');
+    
+    // API Consumer routes - Customer consumes AdminInquiryApiController API
+    Route::get('/check', [InquiryController::class, 'checkInquiry'])->name('check');
+    Route::get('/inquiry/{inquiryId}', [InquiryController::class, 'viewInquiry'])->name('inquiry.show');
+    Route::get('/stats', [InquiryController::class, 'getStats'])->name('stats');
 });
 
 // Firebase Authentication routes
@@ -152,7 +156,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/inquiry/{inquiryId}/update', [App\Http\Controllers\Admin\SupportController::class, 'updateInquiry'])->name('inquiry.update');
             Route::get('/faqs', [App\Http\Controllers\Admin\SupportController::class, 'faqs'])->name('faqs');
             Route::post('/faqs', [App\Http\Controllers\Admin\SupportController::class, 'createFaq'])->name('faqs.create');
-            Route::post('/faqs/{id}/update', [App\Http\Controllers\Admin\SupportController::class, 'updateFaq'])->name('faqs.update');
+            Route::put('/faqs/{id}/update', [App\Http\Controllers\Admin\SupportController::class, 'updateFaq'])->name('faqs.update');
             Route::delete('/faqs/{id}', [App\Http\Controllers\Admin\SupportController::class, 'deleteFaq'])->name('faqs.delete');
         });
         
@@ -274,3 +278,11 @@ Route::prefix('api')->name('api.')->group(function () {
 Route::post('/activities', [ActivityController::class, 'store'])->name('activities.store');
 Route::get('/activities/create', [ActivityController::class, 'create'])->name('activities.create');
 Route::resource('events', EventController::class);
+
+// Notification routes
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::post('/notifications/{id}/mark-read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::get('/notifications/unread-count', [App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+});
