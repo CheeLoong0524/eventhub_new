@@ -47,14 +47,14 @@
                                 <p class="card-text">
                                     <i class="fas fa-calendar me-2"></i>
                                     @if($order->event->start_date)
-                                        {{ $order->event->start_date->format('F j, Y') }}
+                                        {{ $order->event->start_date->setTimezone('Asia/Kuala_Lumpur')->format('F j, Y') }}
                                     @elseif($order->event->start_time)
-                                        {{ $order->event->start_time->format('F j, Y') }}
+                                        {{ $order->event->start_time->setTimezone('Asia/Kuala_Lumpur')->format('F j, Y') }}
                                     @else
                                         Date TBA
                                     @endif
                                     @if($order->event->start_time)
-                                        at {{ $order->event->start_time->format('g:i A') }}
+                                        at {{ $order->event->start_time->setTimezone('Asia/Kuala_Lumpur')->format('g:i A') }}
                                     @endif
                                     <br>
                                     <i class="fas fa-map-marker-alt me-2"></i>{{ $order->event->venue ? $order->event->venue->name : 'Venue TBA' }}<br>
@@ -104,7 +104,7 @@
                             <div class="col-md-6">
                                 <p class="mb-1"><strong>Payment Method:</strong> {{ ucfirst(str_replace('_', ' ', $order->payment->payment_method)) }}</p>
                                 <p class="mb-1"><strong>Amount Paid:</strong> RM {{ number_format($order->payment->amount, 2) }}</p>
-                                <p class="mb-0"><strong>Transaction Date:</strong> {{ $order->payment->processed_at ? $order->payment->processed_at->format('F j, Y g:i A') : $order->payment->created_at->format('F j, Y g:i A') }}</p>
+                                <p class="mb-0"><strong>Transaction Date:</strong> {{ $order->payment->processed_at ? $order->payment->processed_at->setTimezone('Asia/Kuala_Lumpur')->format('F j, Y g:i A') : $order->payment->created_at->setTimezone('Asia/Kuala_Lumpur')->format('F j, Y g:i A') }}</p>
                             </div>
                             <div class="col-md-6">
                                 <p class="mb-1"><strong>Transaction ID:</strong> {{ $order->payment->transaction_id ?? $order->payment->id }}</p>

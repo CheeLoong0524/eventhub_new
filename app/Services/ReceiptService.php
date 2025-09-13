@@ -51,7 +51,7 @@ class ReceiptService
                 'receipt' => [
                     'receipt_id' => $receiptData['receipt_id'],
                     'order_number' => $order->order_number,
-                    'order_date' => $order->created_at->setTimezone('Asia/Kuala_Lumpur')->format('Y-m-d H:i:s'),
+                    'order_date' => $order->created_at->format('Y-m-d H:i:s'),
                     'customer' => [
                         'name' => $order->customer_name,
                         'email' => $order->customer_email,

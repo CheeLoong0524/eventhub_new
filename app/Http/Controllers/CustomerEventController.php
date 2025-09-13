@@ -33,7 +33,7 @@ class CustomerEventController extends Controller
                 $events = Event::with(['venue', 'activities'])
                               ->where('status', 'active')
                               ->where(function($query) {
-                                  $query->where('start_time', '>=', now())
+                                  $query->where('start_time', '>', now()->endOfDay())
                                         ->orWhereNull('start_time');
                               })
                               ->orderBy('start_time', 'asc')
@@ -47,7 +47,7 @@ class CustomerEventController extends Controller
             $events = Event::with(['venue', 'activities'])
                           ->where('status', 'active')
                           ->where(function($query) {
-                              $query->where('start_time', '>=', now())
+                              $query->where('start_time', '>', now()->endOfDay())
                                     ->orWhereNull('start_time');
                           })
                           ->orderBy('start_time', 'asc')
@@ -83,8 +83,8 @@ class CustomerEventController extends Controller
                 $event->id = $eventData['id'];
             } else {
                 // Internal service consumption
-                $event = Event::with(['venue', 'activities.venue'])->findOrFail($id);
-                //$event = $this -> eventService -> getEventById($id); //TRY THIS (CL)
+                //$event = Event::with(['venue', 'activities.venue'])->findOrFail($id);
+                $event = $this -> eventService -> getEventById($id); //TRY THIS (CL)
             }
 
             // Check if event is available for customers
@@ -156,7 +156,7 @@ class CustomerEventController extends Controller
                 $events = Event::with(['venue', 'activities'])
                               ->where('status', 'active')
                               ->where(function($query) {
-                                  $query->where('start_time', '>=', now())
+                                  $query->where('start_time', '>', now()->endOfDay())
                                         ->orWhereNull('start_time');
                               })
                               ->orderBy('start_time', 'asc')
@@ -179,7 +179,7 @@ class CustomerEventController extends Controller
             $events = Event::with(['venue', 'activities'])
                           ->where('status', 'active')
                           ->where(function($query) {
-                              $query->where('start_time', '>=', now())
+                              $query->where('start_time', '>', now()->endOfDay())
                                     ->orWhereNull('start_time');
                           })
                           ->orderBy('start_time', 'asc')
