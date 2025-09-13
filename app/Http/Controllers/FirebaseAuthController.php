@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class FirebaseAuthController extends Controller
 {
@@ -159,54 +160,83 @@ class FirebaseAuthController extends Controller
 
     /**
      * Get current authenticated user
+     * IFA: User Authentication Service
      */
     public function user(Request $request)
     {
         $user = Auth::user();
         
         if (!$user) {
-            return response()->json(['error' => 'Not authenticated'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Not authenticated'
+            ], 401);
         }
 
         return response()->json([
-            'user' => $user,
-            'role' => $user->role
+            'success' => true,
+            'message' => 'User information retrieved successfully',
+            'data' => [
+                'user' => $user,
+                'role' => $user->role
+            ]
         ]);
     }
 
     /**
      * Check if user exists by email (no auth required)
+     * IFA: User Existence Check Service
      */
     public function checkUserExists(Request $request)
     {
-        try {
-            $request->validate([
-                'email' => 'required|email'
-            ]);
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email'
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid email format',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        try {
             $email = $request->input('email');
             $user = User::where('email', $email)->first();
 
             if ($user) {
                 Log::info('User exists check', ['email' => $email, 'exists' => true, 'role' => $user->role]);
                 return response()->json([
-                    'exists' => true,
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'role' => $user->role
+                    'success' => true,
+                    'message' => 'User exists',
+                    'data' => [
+                        'exists' => true,
+                        'user' => [
+                            'id' => $user->id,
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'role' => $user->role
+                        ]
                     ]
                 ]);
             } else {
                 Log::info('User exists check', ['email' => $email, 'exists' => false]);
                 return response()->json([
-                    'exists' => false
+                    'success' => true,
+                    'message' => 'User does not exist',
+                    'data' => [
+                        'exists' => false
+                    ]
                 ]);
             }
         } catch (\Exception $e) {
             Log::error('User exists check failed', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Check failed'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Check failed',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

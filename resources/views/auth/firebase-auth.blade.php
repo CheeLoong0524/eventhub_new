@@ -526,9 +526,12 @@
       const provider = new GoogleAuthProvider();
       signInWithPopup(auth, provider)
           .then((result) => {
+              console.log('Google sign-in successful:', result.user);
+              console.log('User metadata:', result.user.metadata);
               
               // Check if this is a new user by looking at creation time
               const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
+              console.log('Is new user (Firebase metadata):', isNewUser);
               
               // Always check our database to be sure
               checkUserInDatabase(result.user);
@@ -560,7 +563,7 @@
   // Check if user exists in our database
   function checkUserInDatabase(firebaseUser) {
       
-      fetch('/auth/check-user', {
+      fetch('/api/v1/auth/check-user', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -572,8 +575,9 @@
       })
       .then(response => response.json())
       .then(data => {
+          console.log('Database check result:', data);
           
-          if (data.exists && data.user) {
+          if (data.success && data.data.exists && data.data.user) {
               // User exists in database, proceed with authentication
               window.freshSignIn = true;
               showMessage('Successfully signed in with Google!', 'success');
@@ -584,10 +588,12 @@
               }, 1000);
           } else {
               // User doesn't exist in database, show role selection
+              console.log('User not found in database, showing role selection');
               showRoleSelectionModal(firebaseUser);
           }
       })
       .catch(error => {
+          console.error('Database check error:', error);
           // If we can't check the database, assume new user and show role selection
           showRoleSelectionModal(firebaseUser);
       });
@@ -595,6 +601,8 @@
 
   // Show role selection modal for Google sign-in users
   function showRoleSelectionModal(user) {
+      console.log('Showing role selection modal for user:', user.email);
+      console.log('This should only happen for NEW users');
       
       const modalHtml = `
           <div class="modal fade" id="roleModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -709,9 +717,8 @@
       // Add role for new users (either from email/password signup or Google signup)
       if (window.newUserRole) {
           userData.role = window.newUserRole;
-      } else if (user.role && user.role !== 'customer') {
-          userData.role = user.role;
       }
+      // Note: For existing users, we don't send role as it's already in the database
 
       // Add auth_type based on authentication method
       if (user.providerData.some(provider => provider.providerId === 'password')) {

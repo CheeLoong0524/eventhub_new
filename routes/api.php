@@ -25,6 +25,10 @@ use App\Http\Controllers\Api\AdminInquiryApiController;
 
 // Public API routes (no authentication required)
 Route::prefix('v1')->group(function () {
+    // Authentication APIs
+    Route::get('/auth/user', [App\Http\Controllers\FirebaseAuthController::class, 'user']);
+    Route::post('/auth/check-user', [App\Http\Controllers\FirebaseAuthController::class, 'checkUserExists']);
+    
     // General event information API (CL)
     Route::get('/events', [EventApiController::class, 'index']);
     Route::get('/events/{event}', [EventApiController::class, 'show']);
@@ -41,9 +45,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/admin/inquiries/stats', [AdminInquiryApiController::class, 'stats']);
     Route::get('/admin/inquiries/status/{status}', [AdminInquiryApiController::class, 'getByStatus']);
     Route::get('/admin/inquiries/{inquiryId}', [AdminInquiryApiController::class, 'show']);
-    
-    // Vendor information API
-    
+        
     // Vendor information API
     Route::get('/vendors/{id}', [VendorApiController::class, 'getVendorInfo']);
     Route::get('/vendors/{id}/status', [VendorApiController::class, 'getVendorStatus']);

@@ -48,7 +48,6 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/user', [FirebaseAuthController::class, 'user'])->name('user');
     
     // Check if user exists by email (no auth required)
-    Route::post('/check-user', [FirebaseAuthController::class, 'checkUserExists'])->name('check-user');
 });
 
 // Main login route (redirects to appropriate login based on user type)
