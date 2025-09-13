@@ -47,7 +47,6 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('/logout', [FirebaseAuthController::class, 'logout'])->name('logout');
     Route::get('/user', [FirebaseAuthController::class, 'user'])->name('user');
     
-    // Check if user exists by email (no auth required)
 });
 
 // Main login route (redirects to appropriate login based on user type)
