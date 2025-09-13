@@ -187,6 +187,15 @@ class FirebaseAuthController extends Controller
             ], 401);
         }
 
+        // Check if user is active
+        if (!$user->is_active) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Account deactivated',
+                'message' => 'Your account has been deactivated. Please contact the administrator for assistance.'
+            ], 403);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'User information retrieved successfully',
