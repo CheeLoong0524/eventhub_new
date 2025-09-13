@@ -14,6 +14,13 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
+        // Check if user is active
+        if (!$user->is_active) {
+            Auth::logout();
+            return redirect()->route('auth.firebase')
+                ->with('error', 'Your account has been deactivated. Please contact the administrator for assistance.');
+        }
+
         if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');
         } elseif ($user->isVendor()) {

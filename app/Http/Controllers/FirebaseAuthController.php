@@ -80,6 +80,21 @@ class FirebaseAuthController extends Controller
                 }
             }
 
+            // Check if user is active before logging in
+            if (!$user->is_active) {
+                Log::warning('Inactive user attempted login', [
+                    'user_id' => $user->id,
+                    'email' => $email,
+                    'firebase_uid' => $uid
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Account deactivated',
+                    'message' => 'Your account has been deactivated. Please contact the administrator for assistance.'
+                ], 403);
+            }
+
             // Log in the user
             Auth::login($user);
             Log::info('User logged in successfully', ['user_id' => $user->id]);
@@ -152,7 +167,6 @@ class FirebaseAuthController extends Controller
         // Logout from Laravel
         Auth::logout();
         $request->session()->invalidate();
-        $request->session()->regenerateToken();
 
         // Always redirect to home page after logout
         return redirect()->route('home')->with('success', 'Logged out successfully');

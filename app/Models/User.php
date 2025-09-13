@@ -28,6 +28,8 @@ class User extends Authenticatable
         'address',
         'is_active',
         'email_verified_at',
+        'last_login_at',
+        'last_login_ip',
     ];
 
     /**
@@ -50,6 +52,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'is_active' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
     }
 

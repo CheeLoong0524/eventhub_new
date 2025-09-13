@@ -47,7 +47,6 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('/logout', [FirebaseAuthController::class, 'logout'])->name('logout');
     Route::get('/user', [FirebaseAuthController::class, 'user'])->name('user');
     
-    // Check if user exists by email (no auth required)
 });
 
 // Main login route (redirects to appropriate login based on user type)
@@ -55,11 +54,7 @@ Route::get('/login', function () {
     return redirect()->route('admin.login');
 })->name('login');
 
-// Main logout route
-Route::post('/logout', function () {
-    Auth::logout();
-    return redirect()->route('login');
-})->name('logout');
+// Main logout route is handled by FirebaseAuthController
 
 // Admin Authentication routes (public)
 Route::prefix('admin')->name('admin.')->group(function () {

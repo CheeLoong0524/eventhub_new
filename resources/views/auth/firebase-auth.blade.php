@@ -740,6 +740,7 @@
           return response.json();
       })
       .then(data => {
+          console.log('Authentication response:', data);
           
           if (data.success) {
               showMessage('Authentication successful! Redirecting...', 'success');
@@ -754,7 +755,20 @@
               }, 1500);
           } else {
               console.error('Authentication failed:', data.error);
-              showMessage('Authentication failed: ' + data.error);
+              
+              // Handle specific error cases
+              if (data.error === 'Account deactivated') {
+                  showMessage(data.message || 'Your account has been deactivated. Please contact the administrator for assistance.', 'error');
+                  
+                  // Sign out from Firebase to clear the session
+                  auth.signOut().then(() => {
+                      console.log('Signed out from Firebase due to inactive account');
+                  }).catch((error) => {
+                      console.error('Error signing out from Firebase:', error);
+                  });
+              } else {
+                  showMessage('Authentication failed: ' + (data.message || data.error));
+              }
           }
       })
       .catch(error => {
@@ -765,11 +779,37 @@
 
   // Sign out function
   window.signOut = function() {
+      // First sign out from Firebase
       auth.signOut().then(() => {
-          showMessage('Signed out successfully!', 'success');
-          window.location.reload();
+          // Then call Laravel logout endpoint
+          fetch('/auth/logout', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+              }
+          })
+          .then(response => {
+              if (response.ok) {
+                  showMessage('Signed out successfully!', 'success');
+                  // Redirect to home page after successful logout
+                  setTimeout(() => {
+                      window.location.href = '/';
+                  }, 1000);
+              } else {
+                  // Even if Laravel logout fails, still show success for Firebase logout
+                  showMessage('Signed out successfully!', 'success');
+                  window.location.reload();
+              }
+          })
+          .catch(error => {
+              console.error('Laravel logout error:', error);
+              // Even if Laravel logout fails, still show success for Firebase logout
+              showMessage('Signed out successfully!', 'success');
+              window.location.reload();
+          });
       }).catch((error) => {
-          console.error('Error signing out:', error);
+          console.error('Firebase sign out error:', error);
           showMessage('Error signing out: ' + error.message);
       });
   };
