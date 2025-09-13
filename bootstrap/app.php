@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+            'account.lockout' => \App\Http\Middleware\AccountLockoutMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

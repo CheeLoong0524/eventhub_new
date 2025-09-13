@@ -54,11 +54,7 @@ Route::get('/login', function () {
     return redirect()->route('admin.login');
 })->name('login');
 
-// Main logout route
-Route::post('/logout', function () {
-    Auth::logout();
-    return redirect()->route('login');
-})->name('logout');
+// Main logout route is handled by FirebaseAuthController
 
 // Admin Authentication routes (public)
 Route::prefix('admin')->name('admin.')->group(function () {

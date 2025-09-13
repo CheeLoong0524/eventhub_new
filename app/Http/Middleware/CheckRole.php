@@ -28,7 +28,9 @@ class CheckRole
 
         // Check if user is active
         if (!Auth::user()->is_active) {
-            return redirect()->route('auth.firebase');
+            Auth::logout();
+            return redirect()->route('auth.firebase')
+                ->with('error', 'Your account has been deactivated. Please contact the administrator for assistance.');
         }
 
         return $next($request);
