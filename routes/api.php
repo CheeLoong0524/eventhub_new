@@ -4,9 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\EventApiController;
 use App\Http\Controllers\Api\TicketApiController;
-use App\Http\Controllers\Api\VendorApiController_cl;
 use App\Http\Controllers\Api\VendorApiController;
+use App\Http\Controllers\Api\VendorApiController_cl;
 use App\Http\Controllers\Api\VendorManagementApiController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\Api\InquiryController;
 
 /*
@@ -23,7 +24,7 @@ use App\Http\Controllers\Api\InquiryController;
 
 // Public API routes (no authentication required)
 Route::prefix('v1')->group(function () {
-    // General event information API
+    // General event information API (CL)
     Route::get('/events', [EventApiController::class, 'index']);
     Route::get('/events/{event}', [EventApiController::class, 'show']);
     Route::get('/venues/{venue}/events', [EventApiController::class, 'getByVenue']);
@@ -35,13 +36,21 @@ Route::prefix('v1')->group(function () {
     Route::get('/inquiries/stats', [InquiryController::class, 'stats']);
     
     // Vendor information API
+    
+    // Vendor information API
     Route::get('/vendors/{id}', [VendorApiController::class, 'getVendorInfo']);
     Route::get('/vendors/{id}/status', [VendorApiController::class, 'getVendorStatus']);
     Route::get('/vendors/search', [VendorApiController::class, 'searchVendors']);
     
-    // Event application API (using existing VendorApiController)
+    // Event application API
     Route::get('/events/{eventId}/applications', [VendorApiController::class, 'getEventApplications']);
     Route::post('/events/{eventId}/apply', [VendorApiController::class, 'submitEventApplication']);
+    
+    // Receipt API endpoints (public)
+    Route::prefix('receipts')->group(function () {
+        Route::get('/order/{orderId}', [App\Http\Controllers\ReceiptController::class, 'getReceiptByOrderId']);
+        Route::get('/order/{orderId}/data', [App\Http\Controllers\ReceiptController::class, 'getReceiptData']);
+    });
 });
 
 
@@ -90,11 +99,19 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
         Route::get('/applications/{id}', [VendorManagementApiController::class, 'getApplicationDetails']);
     });
     
-    // Vendor-specific API (using existing VendorApiController)
+    // Vendor-specific API
     Route::prefix('vendor')->group(function () {
         Route::get('/profile', [VendorApiController::class, 'getProfile']);
         Route::put('/profile', [VendorApiController::class, 'updateProfile']);
         Route::get('/applications', [VendorApiController::class, 'getMyApplications']);
         Route::get('/bookings', [VendorApiController::class, 'getMyBookings']);
     });
+    
+    // Receipt API endpoints (authenticated)
+    Route::prefix('receipts')->group(function () {
+        Route::post('/', [App\Http\Controllers\ReceiptController::class, 'generateReceipt']);
+        Route::get('/customer/{customerId}', [App\Http\Controllers\ReceiptController::class, 'getCustomerReceipts']);
+        Route::get('/event/{eventId}', [App\Http\Controllers\ReceiptController::class, 'getEventReceipts']);
+    });
+    
 });

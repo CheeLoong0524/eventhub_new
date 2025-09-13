@@ -309,7 +309,7 @@
 </div>
 @endsection
 
-@push('scripts')
+@section('scripts')
 <script>
 (function () {
     const list = document.getElementById('activities');
@@ -381,6 +381,4 @@
     reindexActivities();
 })();
 </script>
-@endpush
-
-
+@endsection

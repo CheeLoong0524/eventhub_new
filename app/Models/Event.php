@@ -13,8 +13,6 @@ class Event extends Model
         'venue_id', 
         'start_time', 
         'end_time',
-        'start_date',
-        'end_date',
         'organizer',
         'status',
         // Pricing and availability
@@ -29,8 +27,6 @@ class Event extends Model
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
         // Pricing casts
         'booth_price' => 'decimal:2',
         'ticket_price' => 'decimal:2',
@@ -44,6 +40,9 @@ class Event extends Model
         'net_profit' => 'decimal:2',
     ];
 
+    /**
+     * RELATIONSHIPS ------------------------------------------------- 
+     */
     public function venue()
     {
         return $this->belongsTo(Venue::class);
@@ -57,6 +56,133 @@ class Event extends Model
     public function vendorApplications()
     {
         return $this->hasMany(VendorEventApplication::class);
+    }
+
+    // Get the cart items for this event 
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    /**
+     * METHODS ------------------------------------------------- 
+     */
+    /**
+     * Check if event is upcoming
+     */
+    public function isUpcoming(): bool
+    {
+        return $this->start_time >= now();
+    }
+
+    /**
+     * Check if event is past
+     */
+    public function isPast(): bool
+    {
+        if (!$this->start_time) {
+            return false; // If no start_time, consider it not past
+        }
+        return $this->start_time < now();
+    }
+
+    /**
+     * Get total available tickets 
+     */
+    public function getTotalAvailableTickets(): int
+    {
+        // Use the loaded relationship if available, otherwise query fresh
+        if ($this->relationLoaded('ticketTypes')) {
+            return $this->ticketTypes->where('is_active', true)->sum(function($ticketType) {
+                return $ticketType->getRemainingQuantity();
+            });
+        }
+        
+        return $this->ticketTypes()->where('is_active', true)->get()->sum(function($ticketType) {
+            return $ticketType->getRemainingQuantity();
+        });
+    }
+
+    /**
+     * Get total sold tickets 
+     */
+    public function getTotalSoldTickets(): int
+    {
+        return $this->ticketTypes()->sum('sold_quantity');
+    }
+
+    /**
+     * Check if event has available tickets
+     */
+    public function hasAvailableTickets(): bool
+    {
+        return $this->getTotalAvailableTickets() > 0;
+    }
+
+    /**
+     * Scope for published events
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    /**
+     * Scope for upcoming events
+     */
+    public function scopeUpcoming($query)
+    {
+        return $query->where('start_time', '>=', now());
+    }
+
+    /**
+     * Scope for featured events
+     */
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    /**
+     * Scope for events by category
+     */
+    public function scopeByCategory($query, $category)
+    {
+        return $query->where('category', $category);
+    }
+
+    /**
+     * Scope for events by venue
+     */
+    public function scopeByVenue($query, $venue)
+    {
+        return $query->whereHas('venue', function($q) use ($venue) {
+            $q->where('name', 'like', "%{$venue}%");
+        });
+    }
+
+    /**
+     * Scope for events by date range
+     */
+    public function scopeByDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('start_time', [$startDate, $endDate]);
+    }
+
+    /**
+     * Scope for popular events (by popularity score)
+     */
+    public function scopePopular($query)
+    {
+        return $query->orderBy('popularity_score', 'desc');
+    }
+
+    /**
+     * Get formatted date and time
+     */
+    public function getFormattedDateTime(): string
+    {
+        return $this->start_time->format('M d, Y \a\t g:i A');
     }
 
     public function isAcceptingApplications()

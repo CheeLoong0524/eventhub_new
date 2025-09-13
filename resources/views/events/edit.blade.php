@@ -108,7 +108,7 @@
                                        name="start_time" 
                                        id="start_time"
                                        class="form-control @error('start_time') is-invalid @enderror" 
-                                       value="{{ old('start_time', \Carbon\Carbon::parse($event->start_time)->format('Y-m-d\TH:i')) }}"
+                                       value="{{ old('start_time', $event->start_date . 'T' . $event->start_time) }}"
                                        required>
                                 @error('start_time')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -123,7 +123,7 @@
                                        name="end_time" 
                                        id="end_time"
                                        class="form-control @error('end_time') is-invalid @enderror" 
-                                       value="{{ old('end_time', \Carbon\Carbon::parse($event->end_time)->format('Y-m-d\TH:i')) }}"
+                                       value="{{ old('end_time', $event->end_date . 'T' . $event->end_time) }}"
                                        required>
                                 @error('end_time')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -359,7 +359,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center">
-                            <button type="button" class="btn btn-outline-success" id="add-activity">
+                            <button type="button" class="btn btn-outline-success" id="add-activity" onclick="addActivity()">
                                 <i class="fas fa-plus me-1"></i>Add Activity
                             </button>
                             <div>
@@ -430,50 +430,6 @@
                             </div>
                         </template>
 
-                        @push('scripts')
-                        <script>
-                        (function() {
-                            const wrapper = document.getElementById('activities-wrapper');
-                            const addBtn = document.getElementById('add-activity');
-                            const template = document.getElementById('activity-template').innerHTML;
-
-                            function reindex() {
-                                const items = wrapper.querySelectorAll('.activity-item');
-                                items.forEach((item, idx) => {
-                                    item.setAttribute('data-index', idx);
-                                    item.querySelector('h6').innerHTML = `<i class="fas fa-stream me-2"></i>Activity #${idx + 1}`;
-                                    // rename inputs
-                                    item.querySelectorAll('input[name], select[name], textarea[name]').forEach(el => {
-                                        el.name = el.name.replace(/activities\[\d+\]/, `activities[${idx}]`);
-                                    });
-                                });
-                            }
-
-                            function bindRemove(btn) {
-                                btn.addEventListener('click', function() {
-                                    const item = this.closest('.activity-item');
-                                    item.remove();
-                                    reindex();
-                                });
-                            }
-
-                            wrapper.querySelectorAll('.remove-activity').forEach(bindRemove);
-
-                            addBtn.addEventListener('click', function() {
-                                const index = wrapper.querySelectorAll('.activity-item').length;
-                                const html = template
-                                    .replaceAll('__INDEX__', index)
-                                    .replaceAll('__HUMAN_INDEX__', index + 1);
-                                const div = document.createElement('div');
-                                div.innerHTML = html.trim();
-                                const node = div.firstChild;
-                                wrapper.appendChild(node);
-                                bindRemove(node.querySelector('.remove-activity'));
-                            });
-                        })();
-                        </script>
-                        @endpush
-
                         <div class="d-flex justify-content-between mt-4">
                             <div></div>
                         </div>
@@ -521,8 +477,8 @@
                         <a href="{{ route('events.show', $event->id) }}" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-eye me-1"></i>View Event
                         </a>
-                        <a href="{{ route('activities.create', ['event_id' => $event->id]) }}" class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-plus me-1"></i>Add Activity
+                        <a href="{{ route('events.create', ['event_id' => $event->id]) }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-plus me-1"></i>Create Event
                         </a>
                         <a href="{{ route('events.index') }}" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-list me-1"></i>All Events
@@ -533,4 +489,159 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing edit activity management...');
+    
+    const activitiesContainer = document.getElementById('activities-wrapper');
+    const addButton = document.getElementById('add-activity');
+
+    console.log('Elements found:', {
+        container: !!activitiesContainer,
+        button: !!addButton
+    });
+
+    if (!activitiesContainer || !addButton) {
+        console.error('Missing required elements');
+        return;
+    }
+
+    // Get initial count
+    let activityCount = activitiesContainer.querySelectorAll('.activity-item').length;
+    console.log('Initial activity count:', activityCount);
+
+    function createActivityHTML(index) {
+        return `
+            <div class="card mb-4 activity-item border border-primary rounded-3 shadow-sm" style="border-width: 10px;" data-index="${index}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-primary">
+                            <i class="fas fa-stream me-2"></i>Activity #${index + 1}
+                        </h6>
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-activity">
+                            <i class="fas fa-trash me-1"></i>Remove
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" name="activities[${index}][name]" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Venue <span class="text-danger">*</span></label>
+                            <select name="activities[${index}][venue_id]" class="form-select" required>
+                                @foreach($venues as $venue)
+                                    <option value="{{ $venue->id }}">{{ $venue->name }} (Cap: {{ $venue->capacity }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Start Time <span class="text-danger">*</span></label>
+                            <input type="datetime-local" name="activities[${index}][start_time]" class="form-control" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Duration (min) <span class="text-danger">*</span></label>
+                            <input type="number" name="activities[${index}][duration]" class="form-control" min="1" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="activities[${index}][status]" class="form-select">
+                                <option value="pending" selected>Pending</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Description</label>
+                        <textarea name="activities[${index}][description]" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function addActivity() {
+        console.log('Adding new activity...');
+        
+        const newActivityHTML = createActivityHTML(activityCount);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newActivityHTML;
+        const newActivity = tempDiv.firstElementChild;
+        
+        activitiesContainer.appendChild(newActivity);
+        
+        // Bind remove event to the new activity
+        const removeBtn = newActivity.querySelector('.remove-activity');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function() {
+                console.log('Removing activity...');
+                newActivity.remove();
+                reindexActivities();
+            });
+        }
+        
+        activityCount++;
+        console.log('Activity added. New count:', activityCount);
+    }
+
+    function reindexActivities() {
+        console.log('Reindexing activities...');
+        const activities = activitiesContainer.querySelectorAll('.activity-item');
+        
+        activities.forEach((activity, index) => {
+            // Update data-index attribute
+            activity.setAttribute('data-index', index);
+            
+            // Update header
+            const header = activity.querySelector('h6');
+            if (header) {
+                const icon = header.querySelector('i');
+                const iconHTML = icon ? icon.outerHTML + ' ' : '';
+                header.innerHTML = iconHTML + `Activity #${index + 1}`;
+            }
+            
+            // Update all form field names
+            const formFields = activity.querySelectorAll('input, select, textarea');
+            formFields.forEach(field => {
+                if (field.name) {
+                    field.name = field.name.replace(/activities\[\d+\]/, `activities[${index}]`);
+                }
+            });
+        });
+        
+        activityCount = activities.length;
+        console.log('Reindexing complete. Count:', activityCount);
+    }
+
+    // Add button event listener
+    addButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Add button clicked');
+        addActivity();
+    });
+
+    // Bind remove events to existing activities
+    activitiesContainer.querySelectorAll('.remove-activity').forEach(btn => {
+        btn.addEventListener('click', function() {
+            console.log('Remove button clicked');
+            const activity = this.closest('.activity-item');
+            if (activity) {
+                activity.remove();
+                reindexActivities();
+            }
+        });
+    });
+
+    // Initial reindex
+    reindexActivities();
+    console.log('Edit activity management initialized successfully');
+});
+    window.addActivity = addActivity;
+</script>
 @endsection

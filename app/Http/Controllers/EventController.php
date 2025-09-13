@@ -6,13 +6,22 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Activity;
 use App\Builders\EventDirector;
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
+use App\Services\EventService;
 
 class EventController extends Controller
 {
+    protected $eventService;
+
+    public function __construct(EventService $eventService)
+    {
+        $this->eventService = $eventService;
+    }
     // Show all events
     public function index()
     {
-        $events = Event::with(['venue', 'activities'])->get();
+        $events = $this->eventService->getAllEvents();
         return view('events.index', compact('events'));
     }
 
@@ -56,6 +65,9 @@ class EventController extends Controller
             'activities.*.venue_id'   => 'required|exists:venues,id',
         ]);
 
+        // Set default status
+        $validated['status'] = 'active';
+
         $event = Event::create($validated);
 
         // Save activities if provided
@@ -74,11 +86,10 @@ class EventController extends Controller
     // Show single event details
     public function show($id)
     {
-        // Load the event with its venue + activities (and their venues)
-        $event = \App\Models\Event::with(['venue', 'activities.venue'])->findOrFail($id);
-
+        $event =  $this -> eventService -> getEventById($id);
         return view('events.show', compact('event'));
     }
+
 
     // Show edit form
     public function edit($id)
@@ -120,6 +131,7 @@ class EventController extends Controller
             'activities.*.status'     => 'nullable|in:pending,in_progress,completed',
             'activities.*.venue_id'   => 'required|exists:venues,id',
         ]);
+
 
         $event = Event::findOrFail($id);
         $event->update($validated);

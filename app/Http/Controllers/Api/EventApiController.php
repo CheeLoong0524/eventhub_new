@@ -29,11 +29,11 @@ class EventApiController extends Controller
             
             // Filter by date range if provided
             if ($request->has('start_date')) {
-                $query->where('start_date', '>=', $request->start_date);
+                $query->where('start_time', '>=', $request->start_date);
             }
             
             if ($request->has('end_date')) {
-                $query->where('end_date', '<=', $request->end_date);
+                $query->where('start_time', '<=', $request->end_date);
             }
             
             $events = $query->paginate($request->get('per_page', 15));
@@ -82,26 +82,5 @@ class EventApiController extends Controller
         }
     }
 
-    /**
-     * Get events by venue
-     */
-    public function getByVenue(Venue $venue): JsonResponse
-    {
-        try {
-            $events = $venue->events()->with(['activities'])->get();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Events retrieved successfully',
-                'data' => EventResource::collection($events)
-            ], 200);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve events for venue',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+    
 }
