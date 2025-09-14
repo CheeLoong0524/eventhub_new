@@ -341,11 +341,42 @@
                     </li>
 
                     <!-- Support -->
-                    <li class="nav-item">
-                        <a class="nav-link text-white {{ request()->routeIs('admin.support*') ? 'active' : '' }}" href="{{ route('admin.support.index') }}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link text-white dropdown-toggle {{ request()->routeIs('admin.support*') ? 'active' : '' }}" 
+                           href="#" 
+                           id="supportDropdown" 
+                           role="button" 
+                           data-bs-toggle="dropdown" 
+                           aria-expanded="false">
                             <i class="fas fa-headset"></i>
                             <span class="ms-1 d-none d-lg-inline">Support</span>
                         </a>
+                        <ul class="dropdown-menu" aria-labelledby="supportDropdown">
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('admin.support.index') ? 'active' : '' }}" 
+                                   href="{{ route('admin.support.index') }}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('admin.support.inquiries*') ? 'active' : '' }}" 
+                                   href="{{ route('admin.support.inquiries') }}">
+                                    <i class="fas fa-list me-2"></i>Inquiries
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('admin.support.check.customer*') ? 'active' : '' }}" 
+                                   href="{{ route('admin.support.check.customer.view') }}">
+                                    <i class="fas fa-user-check me-2"></i>Check Customer
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('admin.support.faqs*') ? 'active' : '' }}" 
+                                   href="{{ route('admin.support.faqs') }}">
+                                    <i class="fas fa-question-circle me-2"></i>FAQs
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
                 

@@ -43,7 +43,8 @@ class UserController extends Controller
                 $users = $this->parseUsersFromXml($xml);
             } else {
                 // Internal service consumption
-                $users = User::orderBy('created_at', 'desc')->paginate(15);
+                $xml = $this->userService->generateUsersXml();
+                $users = $this->parseUsersFromXml($xml);
             }
 
             return view('admin.users.index', compact('users'));

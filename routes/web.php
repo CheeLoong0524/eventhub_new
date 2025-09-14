@@ -202,6 +202,12 @@ Route::middleware('auth')->group(function () {
             Route::post('/faqs', [App\Http\Controllers\Admin\SupportController::class, 'createFaq'])->name('faqs.create');
             Route::put('/faqs/{id}/update', [App\Http\Controllers\Admin\SupportController::class, 'updateFaq'])->name('faqs.update');
             Route::delete('/faqs/{id}', [App\Http\Controllers\Admin\SupportController::class, 'deleteFaq'])->name('faqs.delete');
+            
+            // Customer existence check (consumes User Authentication Module API)
+            Route::get('/check-customer', function() {
+                return view('admin.support.customer-check');
+            })->name('check.customer.view');
+            Route::post('/check-customer', [App\Http\Controllers\Admin\SupportController::class, 'checkCustomerExists'])->name('check.customer');
         });
         
         // Debug route for testing
@@ -209,6 +215,18 @@ Route::middleware('auth')->group(function () {
             $users = \App\Models\User::paginate(5);
             return response()->json($users);
         })->name('debug.users');
+        
+        // Test customer check API
+        Route::get('/test-customer-check', function() {
+            return response()->json([
+                'message' => 'Customer check API is working!',
+                'endpoints' => [
+                    'GET' => route('admin.support.check.customer.view'),
+                    'POST' => route('admin.support.check.customer'),
+                    'user_api' => url('/api/v1/auth/check-user')
+                ]
+            ]);
+        })->name('admin.test.customer.check');
         
     });
     

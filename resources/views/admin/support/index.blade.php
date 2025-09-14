@@ -16,6 +16,9 @@
             <a href="{{ route('admin.support.inquiries') }}" class="btn btn-outline-primary">
                 <i class="fas fa-list me-2"></i>View All Inquiries
             </a>
+            <a href="{{ route('admin.support.check.customer.view') }}" class="btn btn-outline-success">
+                <i class="fas fa-user-check me-2"></i>Check Customer
+            </a>
             <a href="{{ route('admin.support.faqs') }}" class="btn btn-primary">
                 <i class="fas fa-question-circle me-2"></i>Manage FAQs
             </a>
@@ -73,6 +76,59 @@
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-tools me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-left-info h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-check fa-3x text-info mb-3"></i>
+                                    <h5 class="card-title">Check Customer</h5>
+                                    <p class="card-text text-muted">Verify if customer exists before creating support ticket</p>
+                                    <a href="{{ route('admin.support.check.customer.view') }}" class="btn btn-info">
+                                        <i class="fas fa-search me-2"></i>Check Now
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-left-warning h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-plus-circle fa-3x text-warning mb-3"></i>
+                                    <h5 class="card-title">New FAQ</h5>
+                                    <p class="card-text text-muted">Add new frequently asked question to help customers</p>
+                                    <a href="{{ route('admin.support.faqs') }}" class="btn btn-warning">
+                                        <i class="fas fa-plus me-2"></i>Add FAQ
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-left-success h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-chart-bar fa-3x text-success mb-3"></i>
+                                    <h5 class="card-title">View Reports</h5>
+                                    <p class="card-text text-muted">Analyze support metrics and customer satisfaction</p>
+                                    <a href="{{ route('admin.support.inquiries') }}" class="btn btn-success">
+                                        <i class="fas fa-chart-line me-2"></i>View Reports
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

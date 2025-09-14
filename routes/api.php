@@ -29,7 +29,7 @@ Route::prefix('v1')->middleware('throttle:100,1')->group(function () {
     Route::get('/auth/user', [App\Http\Controllers\FirebaseAuthController::class, 'user']);
     Route::post('/auth/check-user', [App\Http\Controllers\FirebaseAuthController::class, 'checkUserExists']);
     
-    // User Management APIs (External Consumption)
+    // User Management APIs (External + Internal Consumption)
     Route::get('/users-xml', [App\Http\Controllers\Api\UserAuthApiController::class, 'getUsersXml']);
     Route::get('/users-xml/{id}', [App\Http\Controllers\Api\UserAuthApiController::class, 'getUserXml']);
     Route::get('/users/{id}/auth-status', [App\Http\Controllers\Api\UserAuthApiController::class, 'getUserAuthStatus']);

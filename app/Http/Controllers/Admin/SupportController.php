@@ -395,4 +395,57 @@ class SupportController extends Controller
 
         return redirect()->back()->with('success', 'FAQ deleted successfully!');
     }
+
+    /**
+     * Check if customer exists by email
+     * IFA: User Existence Check Service Consumption
+     * This method consumes the User Authentication Module API
+     */
+    public function checkCustomerExists(Request $request)
+    {
+        try {
+            // Auto-detect: if request has 'use_api' query param, consume externally
+            $useApi = $request->query('use_api', false);
+
+            if ($useApi) {
+                // External API consumption (consume User Authentication Module API)
+                $response = Http::timeout(10)
+                    ->post(url('/api/v1/auth/check-user'), [
+                        'email' => $request->email
+                    ]);
+
+                if ($response->failed()) {
+                    throw new \Exception('Failed to check user existence from API');
+                }
+
+                $apiData = $response->json();
+            } else {
+                // Internal service consumption (direct database query)
+                $user = \App\Models\User::where('email', $request->email)->first();
+                $apiData = [
+                    'success' => true,
+                    'message' => $user ? 'User exists' : 'User not found',
+                    'data' => [
+                        'exists' => $user ? true : false,
+                        'user' => $user ? [
+                            'id' => $user->id,
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'role' => $user->role,
+                            'is_active' => $user->is_active
+                        ] : null
+                    ]
+                ];
+            }
+
+            return response()->json($apiData);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to check customer existence',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
