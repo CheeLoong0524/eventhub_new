@@ -127,10 +127,122 @@ class UserController extends Controller
 
     /**
      * Display the specified user
+     * IFA: User Information Service with Support Context
+     * Consumes Customer Support Module APIs with automatic fallback
      */
-    public function show(User $user)
+    public function show(Request $request, User $user)
     {
-        return view('admin.users.show', compact('user'));
+        $supportData = null;
+        $supportError = null;
+        $dataSource = 'internal'; // Default to internal
+
+        try {
+            // Try external API first, then fallback to internal
+            $supportData = $this->getUserSupportData($user, $dataSource);
+            
+        } catch (\Exception $e) {
+            $supportError = 'Support data unavailable: ' . $e->getMessage();
+        }
+
+        return view('admin.users.show', compact('user', 'supportData', 'supportError', 'dataSource'));
+    }
+
+    /**
+     * Get user support data with automatic fallback
+     * IFA: Customer Support Module API Consumption with Fallback
+     */
+    private function getUserSupportData(User $user, &$dataSource)
+    {
+        // Try external API first
+        try {
+            $dataSource = 'external';
+            
+            // Get user's support inquiries
+            $inquiriesResponse = Http::timeout(10)
+                ->get(url('/api/v1/admin/inquiries'), [
+                    'user_id' => $user->id,
+                    'per_page' => 10
+                ]);
+
+            if ($inquiriesResponse->failed()) {
+                throw new \Exception('External API failed for inquiries');
+            }
+
+            $inquiriesData = $inquiriesResponse->json();
+            if (!$inquiriesData['success']) {
+                throw new \Exception('External API returned unsuccessful response for inquiries');
+            }
+
+            // Get user's support statistics
+            $statsResponse = Http::timeout(10)
+                ->get(url('/api/v1/admin/inquiries/stats'), [
+                    'user_id' => $user->id
+                ]);
+
+            if ($statsResponse->failed()) {
+                throw new \Exception('External API failed for statistics');
+            }
+
+            $statsData = $statsResponse->json();
+            if (!$statsData['success']) {
+                throw new \Exception('External API returned unsuccessful response for statistics');
+            }
+
+            // Successfully got data from external API
+            return [
+                'inquiries' => $inquiriesData['data'] ?? [],
+                'stats' => $statsData['data'] ?? []
+            ];
+
+        } catch (\Exception $e) {
+            // Fallback to internal service
+            \Log::info('External API failed, falling back to internal service', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
+            $dataSource = 'internal';
+            
+            $supportInquiries = \App\Models\SupportInquiry::where('user_id', $user->id)
+                ->orWhere('email', $user->email)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+
+            $totalInquiries = \App\Models\SupportInquiry::where('user_id', $user->id)
+                ->orWhere('email', $user->email)
+                ->count();
+
+            $pendingInquiries = \App\Models\SupportInquiry::where(function($query) use ($user) {
+                $query->where('user_id', $user->id)->orWhere('email', $user->email);
+            })->where('status', 'pending')->count();
+
+            $resolvedInquiries = \App\Models\SupportInquiry::where(function($query) use ($user) {
+                $query->where('user_id', $user->id)->orWhere('email', $user->email);
+            })->where('status', 'resolved')->count();
+
+            return [
+                'inquiries' => $supportInquiries->map(function($inquiry) {
+                    return [
+                        'inquiry_id' => $inquiry->inquiry_id,
+                        'subject' => $inquiry->subject,
+                        'status' => $inquiry->status,
+                        'created_at' => $inquiry->created_at,
+                        'admin_reply' => $inquiry->admin_reply
+                    ];
+                })->toArray(),
+                'stats' => [
+                    'total_inquiries' => $totalInquiries,
+                    'pending_inquiries' => $pendingInquiries,
+                    'resolved_inquiries' => $resolvedInquiries,
+                    'status_breakdown' => [
+                        'pending' => $pendingInquiries,
+                        'resolved' => $resolvedInquiries,
+                        'closed' => $totalInquiries - $pendingInquiries - $resolvedInquiries
+                    ]
+                ]
+            ];
+        }
     }
 
     /**

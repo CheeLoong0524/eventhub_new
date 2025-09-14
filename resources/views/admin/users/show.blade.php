@@ -112,6 +112,110 @@
     </div>
     
     <div class="col-md-4">
+        <!-- Support Information Card -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-headset me-2"></i>Support Information
+                </h5>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-{{ $dataSource === 'external' ? 'success' : 'info' }} me-2">
+                        <i class="fas fa-{{ $dataSource === 'external' ? 'cloud' : 'database' }} me-1"></i>
+                        {{ $dataSource === 'external' ? 'External API' : 'Internal Service' }}
+                    </span>
+                    @if($dataSource === 'internal')
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>Auto-fallback
+                        </small>
+                    @endif
+                </div>
+            </div>
+            <div class="card-body">
+                @if($supportError)
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ $supportError }}
+                    </div>
+                @elseif($supportData)
+                    <!-- Support Statistics -->
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <div class="border-end">
+                                <h4 class="text-primary mb-0">{{ $supportData['stats']['total_inquiries'] ?? 0 }}</h4>
+                                <small class="text-muted">Total</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border-end">
+                                <h4 class="text-warning mb-0">{{ $supportData['stats']['pending_inquiries'] ?? 0 }}</h4>
+                                <small class="text-muted">Pending</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="text-success mb-0">{{ $supportData['stats']['resolved_inquiries'] ?? 0 }}</h4>
+                            <small class="text-muted">Resolved</small>
+                        </div>
+                    </div>
+
+                    <!-- Recent Inquiries -->
+                    @if(isset($supportData['inquiries']) && count($supportData['inquiries']) > 0)
+                        <h6 class="mb-2">Recent Inquiries:</h6>
+                        <div class="list-group list-group-flush">
+                            @foreach(array_slice($supportData['inquiries'], 0, 3) as $inquiry)
+                                <div class="list-group-item px-0 py-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 text-truncate" style="max-width: 200px;">
+                                                {{ $inquiry['subject'] ?? 'No Subject' }}
+                                            </h6>
+                                            <small class="text-muted">
+                                                {{ isset($inquiry['created_at']) ? \Carbon\Carbon::parse($inquiry['created_at'])->format('M j, Y') : 'Unknown Date' }}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-{{ $inquiry['status'] === 'pending' ? 'warning' : ($inquiry['status'] === 'resolved' ? 'success' : 'secondary') }}">
+                                            {{ ucfirst($inquiry['status'] ?? 'Unknown') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        
+                        @if(count($supportData['inquiries']) > 3)
+                            <div class="text-center mt-2">
+                                <small class="text-muted">
+                                    +{{ count($supportData['inquiries']) - 3 }} more inquiries
+                                </small>
+                            </div>
+                        @endif
+                    @else
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p class="mb-0">No support inquiries found</p>
+                        </div>
+                    @endif
+
+                    <!-- API Information -->
+                    <div class="mt-3 pt-3 border-top">
+                        <small class="text-muted">
+                            <i class="fas fa-{{ $dataSource === 'external' ? 'cloud' : 'database' }} me-1"></i>
+                            Data source: {{ $dataSource === 'external' ? 'External API' : 'Internal Service' }}
+                            @if($dataSource === 'internal')
+                                <span class="text-warning">
+                                    <i class="fas fa-arrow-down me-1"></i>Auto-fallback
+                                </span>
+                            @endif
+                        </small>
+                    </div>
+                @else
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+                        <p class="mb-0">Loading support data...</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Actions Card -->
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Actions</h5>
