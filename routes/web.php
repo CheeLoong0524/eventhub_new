@@ -61,6 +61,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+    
+    // CSRF token refresh route
+    Route::get('/csrf-token', function () {
+        return response()->json(['csrf_token' => csrf_token()]);
+    })->name('csrf-token');
 });
 
 

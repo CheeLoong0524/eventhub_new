@@ -33,6 +33,15 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        // Check for CSRF token mismatch
+        if (!$request->hasValidSignature() && !$request->isMethod('post')) {
+            Log::warning('CSRF token mismatch on admin login', [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl()
+            ]);
+        }
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
@@ -95,6 +104,7 @@ class AuthController extends Controller
 
         // Attempt to authenticate
         if (Auth::attempt($credentials)) {
+            // Regenerate session ID for security
             $request->session()->regenerate();
             
             // Update last login information (Practice #52)

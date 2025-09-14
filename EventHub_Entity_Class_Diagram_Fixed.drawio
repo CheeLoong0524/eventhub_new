@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2024-01-15T00:00:00.000Z" agent="5.0" etag="abc123" version="22.1.16" type="device">
+  <diagram name="EventHub Entity Class Diagram" id="eventhub-entity-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="EventHub System - Entity Class Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="20" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- USER MODULE -->
+        <mxCell id="user-module" value="USER AUTHENTICATION MODULE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="80" width="400" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- User Entity -->
+        <mxCell id="user-entity" value="User" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="140" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="user-attributes" value="+ id: bigint (PK)&#xa;+ name: string&#xa;+ email: string (unique)&#xa;+ password: string (hidden)&#xa;+ firebase_uid: string&#xa;+ auth_method: enum&#xa;+ role: enum (admin/vendor/customer)&#xa;+ phone: string&#xa;+ address: text&#xa;+ is_active: boolean&#xa;+ email_verified_at: datetime&#xa;+ last_login_at: datetime&#xa;+ last_login_ip: string&#xa;+ created_at, updated_at: timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="200" width="280" height="220" as="geometry" />
+        </mxCell>
+
+        <mxCell id="user-methods" value="+ isAdmin(): boolean&#xa;+ isVendor(): boolean&#xa;+ isCustomer(): boolean&#xa;+ hasRole(role: string): boolean&#xa;+ usesFirebaseEmail(): boolean&#xa;+ usesOAuth(): boolean&#xa;+ canChangePassword(): boolean&#xa;+ isFirebaseManaged(): boolean&#xa;+ findByFirebaseUid(uid: string): User" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="430" width="280" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- UserFactory -->
+        <mxCell id="user-factory" value="UserFactory" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="140" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="user-factory-methods" value="+ createFirebaseUser(data: array): User&#xa;+ createAdminUser(data: array): User&#xa;+ updateFirebaseUser(user: User, data: array)&#xa;+ findByFirebaseUid(uid: string): User&#xa;+ findByEmail(email: string): User&#xa;+ isFirebaseManaged(user: User): boolean" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="320" y="190" width="240" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Controllers -->
+        <mxCell id="profile-controller" value="ProfileController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="20" y="580" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="user-controller" value="UserController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="160" y="580" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="firebase-auth-controller" value="FirebaseAuthController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="300" y="580" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="admin-auth-controller" value="AdminAuthController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="460" y="580" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- External API Service -->
+        <mxCell id="external-api" value="ExternalApiService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="580" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- EVENT MODULE -->
+        <mxCell id="event-module" value="EVENT MANAGEMENT MODULE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="800" y="80" width="400" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Event Entity -->
+        <mxCell id="event-entity" value="Event" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="830" y="140" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="event-attributes" value="+ id: bigint (PK)&#xa;+ name: string&#xa;+ venue_id: foreign key&#xa;+ start_time, end_time: datetime&#xa;+ organizer: string&#xa;+ status: string&#xa;+ booth_price, ticket_price: decimal&#xa;+ booth_quantity, booth_sold: integer&#xa;+ ticket_quantity, ticket_sold: integer&#xa;+ venue_cost, staff_cost: decimal&#xa;+ equipment_cost, marketing_cost: decimal&#xa;+ other_costs: decimal&#xa;+ total_revenue, total_costs: decimal&#xa;+ net_profit: decimal&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="750" y="200" width="300" height="220" as="geometry" />
+        </mxCell>
+
+        <mxCell id="event-methods" value="+ isUpcoming(): boolean&#xa;+ isPast(): boolean&#xa;+ hasAvailableTickets(): boolean&#xa;+ calculateTotalCosts(): decimal&#xa;+ calculateTotalRevenue(): decimal&#xa;+ calculateNetProfit(): decimal&#xa;+ updateFinancials(): void" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="750" y="430" width="300" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Venue Entity -->
+        <mxCell id="venue-entity" value="Venue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="140" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="venue-attributes" value="+ id: bigint (PK)&#xa;+ name: string&#xa;+ location: string&#xa;+ capacity: integer&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="190" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Activity Entity -->
+        <mxCell id="activity-entity" value="Activity" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="310" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="activity-attributes" value="+ id: bigint (PK)&#xa;+ event_id: foreign key&#xa;+ name: string&#xa;+ description: text&#xa;+ start_time: datetime&#xa;+ duration: integer&#xa;+ status: string&#xa;+ venue_id: foreign key&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="360" width="160" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- VENDOR MODULE -->
+        <mxCell id="vendor-module" value="VENDOR MANAGEMENT MODULE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="700" width="400" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Vendor Entity -->
+        <mxCell id="vendor-entity" value="Vendor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="760" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="vendor-attributes" value="+ id: bigint (PK)&#xa;+ user_id: foreign key&#xa;+ business_name: string&#xa;+ business_type: string&#xa;+ business_description: text&#xa;+ business_phone, business_email: string&#xa;+ years_in_business: integer&#xa;+ business_size: string&#xa;+ annual_revenue: decimal&#xa;+ event_experience: text&#xa;+ product_category: string&#xa;+ target_audience: text&#xa;+ marketing_strategy: text&#xa;+ contact_person: string&#xa;+ contact_email: string&#xa;+ contact_phone: string&#xa;+ website: string&#xa;+ status: enum&#xa;+ rejection_reason: text&#xa;+ approved_at: datetime&#xa;+ approved_by: foreign key&#xa;+ rating: decimal&#xa;+ total_events: integer&#xa;+ is_verified: boolean&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="820" width="280" height="220" as="geometry" />
+        </mxCell>
+
+        <mxCell id="vendor-methods" value="+ isApproved(): boolean&#xa;+ isPending(): boolean&#xa;+ isRejected(): boolean&#xa;+ isSuspended(): boolean&#xa;+ getStatusBadgeColorAttribute(): string" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1050" width="280" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- VendorEventApplication Entity -->
+        <mxCell id="vendor-event-app-entity" value="VendorEventApplication" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="760" width="180" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="vendor-event-app-attributes" value="+ id: bigint (PK)&#xa;+ vendor_id: foreign key&#xa;+ event_id: foreign key&#xa;+ booth_size: string&#xa;+ booth_quantity: integer&#xa;+ service_type: string&#xa;+ service_description: text&#xa;+ service_categories: json&#xa;+ requested_price: decimal&#xa;+ approved_price: decimal&#xa;+ special_requirements: text&#xa;+ status: enum&#xa;+ admin_notes: text&#xa;+ rejection_reason: text&#xa;+ reviewed_by: foreign key&#xa;+ reviewed_at: datetime&#xa;+ approved_at: datetime&#xa;+ rejected_at: datetime&#xa;+ paid_at: datetime&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="320" y="810" width="280" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- E-COMMERCE MODULE -->
+        <mxCell id="ecommerce-module" value="E-COMMERCE MODULE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="800" y="700" width="400" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Cart Entity -->
+        <mxCell id="cart-entity" value="Cart" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="830" y="760" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cart-attributes" value="+ id: bigint (PK)&#xa;+ user_id: foreign key&#xa;+ session_id: string&#xa;+ expires_at: datetime&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="800" y="820" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cart-methods" value="+ getTotalItems(): int&#xa;+ getTotalPrice(): float&#xa;+ getFormattedTotalPrice(): string&#xa;+ isEmpty(): boolean&#xa;+ isExpired(): boolean&#xa;+ clear(): void&#xa;+ findOrCreateForUser(): Cart&#xa;+ findOrCreateForSession(): Cart" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="800" y="930" width="160" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- CartItem Entity -->
+        <mxCell id="cart-item-entity" value="CartItem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="760" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cart-item-attributes" value="+ id: bigint (PK)&#xa;+ cart_id: foreign key&#xa;+ event_id: foreign key&#xa;+ quantity: integer&#xa;+ price: decimal&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="980" y="810" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- EventOrderYf Entity -->
+        <mxCell id="event-order-entity" value="EventOrderYf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="760" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="event-order-attributes" value="+ id: bigint (PK)&#xa;+ order_number: string (unique)&#xa;+ user_id: foreign key&#xa;+ event_id: foreign key&#xa;+ total_amount: decimal&#xa;+ status: string&#xa;+ customer_name: string&#xa;+ customer_email: string&#xa;+ customer_phone: string&#xa;+ ticket_details: json&#xa;+ notes: text&#xa;+ tickets_processed: boolean&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="810" width="160" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- EventPaymentYf Entity -->
+        <mxCell id="event-payment-entity" value="EventPaymentYf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="970" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="event-payment-attributes" value="+ id: bigint (PK)&#xa;+ order_id: foreign key&#xa;+ payment_method: string&#xa;+ payment_gateway_transaction_id: string&#xa;+ amount: decimal&#xa;+ currency: string&#xa;+ status: string&#xa;+ gateway_response: json&#xa;+ processed_at: datetime&#xa;+ failure_reason: text&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="1020" width="160" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- SUPPORT MODULE -->
+        <mxCell id="support-module" value="SUPPORT & COMMUNICATION MODULE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="1200" width="400" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- SupportInquiry Entity -->
+        <mxCell id="support-inquiry-entity" value="SupportInquiry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1260" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="support-inquiry-attributes" value="+ id: bigint (PK)&#xa;+ inquiry_id: string (unique)&#xa;+ user_id: foreign key&#xa;+ name: string&#xa;+ email: string&#xa;+ subject: string&#xa;+ message: text&#xa;+ status: enum&#xa;+ admin_reply: text&#xa;+ resolved_at: datetime&#xa;+ resolved_by: foreign key&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1320" width="280" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="support-inquiry-methods" value="+ generateInquiryId(): string" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1470" width="280" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Notification Entity -->
+        <mxCell id="notification-entity" value="Notification" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="1260" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="notification-attributes" value="+ id: bigint (PK)&#xa;+ user_id: foreign key&#xa;+ inquiry_id: foreign key&#xa;+ message: text&#xa;+ status: enum&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="320" y="1310" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="notification-methods" value="+ markAsRead(): void&#xa;+ markAsUnread(): void" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="320" y="1420" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Faq Entity -->
+        <mxCell id="faq-entity" value="Faq" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxCell id="faq-entity" value="Faq" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+            <mxGeometry x="550" y="1260" width="80" height="40" as="geometry" />
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="faq-attributes" value="+ id: bigint (PK)&#xa;+ question: text&#xa;+ answer: text&#xa;+ category: string&#xa;+ is_active: boolean&#xa;+ timestamps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="530" y="1310" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- RELATIONSHIPS -->
+        <!-- User to Vendor -->
+        <mxCell id="user-vendor-line" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="user-entity" target="vendor-entity">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="155" y="580" as="sourcePoint" />
+            <mxPoint x="140" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="user-vendor-label" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="150" y="680" width="20" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- User to Cart -->
+        <mxCell id="user-cart-line" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="user-entity" target="cart-entity">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="230" y="165" as="sourcePoint" />
+            <mxPoint x="830" y="785" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="user-cart-label" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="500" width="20" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Event to Venue -->
+        <mxCell id="event-venue-line" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="event-entity" target="venue-entity">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="950" y="165" as="sourcePoint" />
+            <mxPoint x="1100" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="event-venue-label" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="150" width="20" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Event to Activity -->
+        <mxCell id="event-activity-line" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="event-entity" target="activity-entity">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="950" y="200" as="sourcePoint" />
+            <mxPoint x="1100" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="event-activity-label" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="250" width="20" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Vendor to VendorEventApplication -->
+        <mxCell id="vendor-app-line" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="vendor-entity" target="vendor-event-app-entity">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="200" y="785" as="sourcePoint" />
+            <mxPoint x="350" y="780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vendor-app-label" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="770" width="20" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Cart to CartItem -->
+        <mxCell id="cart-item-line" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cart-entity" target="cart-item-entity">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="930" y="785" as="sourcePoint" />
+            <mxPoint x="1000" y="780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cart-item-label" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="960" y="770" width="20" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- EventOrderYf to EventPaymentYf -->
+        <mxCell id="order-payment-line" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="event-order-entity" target="event-payment-entity">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1210" y="950" as="sourcePoint" />
+            <mxPoint x="1210" y="970" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="order-payment-label" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="960" width="20" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- SupportInquiry to Notification -->
+        <mxCell id="inquiry-notification-line" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="support-inquiry-entity" target="notification-entity">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="220" y="1285" as="sourcePoint" />
+            <mxPoint x="350" y="1280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="inquiry-notification-label" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="1270" width="20" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="LEGEND" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="800" y="1200" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-entity" value="Entity Class" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="800" y="1250" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-attributes" value="Attributes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="800" y="1300" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-methods" value="Methods" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="800" y="1350" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-controller" value="Controller" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="800" y="1400" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-service" value="Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="800" y="1450" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-module" value="Module" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="800" y="1500" width="120" height="40" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
