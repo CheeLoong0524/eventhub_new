@@ -2,11 +2,11 @@
 
 <div class="notification-dropdown">
     <div class="dropdown">
-        <button class="btn btn-outline-primary dropdown-toggle position-relative" type="button" 
-                data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-bell"></i>
+        <button class="btn btn-link text-white position-relative p-2" type="button" 
+                data-bs-toggle="dropdown" aria-expanded="false" style="border: none; background: none;">
+            <i class="fas fa-bell fs-5"></i>
             @if($unreadCount > 0)
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
                     {{ $unreadCount }}
                 </span>
             @endif

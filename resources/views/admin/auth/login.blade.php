@@ -161,5 +161,38 @@
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Refresh CSRF token on page load to prevent 419 errors
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get fresh CSRF token
+            fetch('{{ route("admin.login") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Extract CSRF token from response
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const csrfToken = doc.querySelector('meta[name="csrf-token"]');
+                
+                if (csrfToken) {
+                    // Update CSRF token in form
+                    const form = document.querySelector('form[method="POST"]');
+                    const csrfInput = form.querySelector('input[name="_token"]');
+                    if (csrfInput) {
+                        csrfInput.value = csrfToken.getAttribute('content');
+                    }
+                }
+            })
+            .catch(error => {
+                console.log('CSRF token refresh failed:', error);
+            });
+        });
+    </script>
 </body>
 </html>

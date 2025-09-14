@@ -1,5 +1,8 @@
 <?php
-
+/** Author: Tan Chim Yang 
+ * RSW2S3G4
+ * 23WMR14610 
+ * **/
 namespace App\Http\Middleware;
 
 use Closure;
@@ -17,6 +20,11 @@ class RedirectIfAuthenticated
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check()) {
+            // Redirect admin users to admin dashboard
+            if (Auth::user()->isAdmin()) {
+                return redirect()->route('admin.dashboard');
+            }
+            // Redirect other users to regular dashboard
             return redirect()->route('dashboard');
         }
 

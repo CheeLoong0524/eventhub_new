@@ -1,5 +1,8 @@
 <?php
-
+/** Author: Tan Chim Yang 
+ * RSW2S3G4
+ * 23WMR14610 
+ * **/
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;

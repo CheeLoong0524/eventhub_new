@@ -26,20 +26,68 @@
 
     @yield('styles')
     <style>
+        /* Navigation Styles */
         .navbar.navbar-dark .navbar-nav .nav-link {
             color: rgba(255,255,255,0.9);
             padding: 0.5rem 0.75rem;
             border-radius: 0.5rem;
             margin-right: 0.25rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
         .navbar.navbar-dark .navbar-nav .nav-link:hover {
             color: #fff;
             background-color: rgba(255,255,255,0.12);
+            transform: translateY(-1px);
         }
         .navbar.navbar-dark .navbar-nav .nav-link.active {
             color: #fff;
             background-color: rgba(255,255,255,0.22);
-            font-weight: 400;
+            font-weight: 500;
+        }
+        
+        /* Responsive Navigation */
+        @media (max-width: 991.98px) {
+            .navbar-nav .nav-link {
+                padding: 0.75rem 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .navbar-nav .nav-item:last-child .nav-link {
+                border-bottom: none;
+            }
+            .navbar-nav .dropdown-menu {
+                position: static !important;
+                transform: none !important;
+                box-shadow: none;
+                background-color: rgba(255,255,255,0.1);
+                border: none;
+                margin-left: 1rem;
+            }
+            .navbar-nav .dropdown-item {
+                color: rgba(255,255,255,0.8);
+                padding: 0.5rem 1rem;
+            }
+            .navbar-nav .dropdown-item:hover {
+                background-color: rgba(255,255,255,0.1);
+                color: #fff;
+            }
+        }
+        
+        /* Mobile Brand */
+        @media (max-width: 575.98px) {
+            .navbar-brand span:first-of-type {
+                display: none !important;
+            }
+        }
+        
+        /* Desktop Navigation Spacing */
+        @media (min-width: 992px) {
+            .navbar-nav .nav-item {
+                margin-right: 0.25rem;
+            }
+            .navbar-nav .nav-link {
+                padding: 0.5rem 0.75rem;
+            }
         }
         
         body {
@@ -155,6 +203,7 @@
             border-radius: 0.5rem;
         }
         
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             .admin-sidebar {
                 min-height: auto;
@@ -167,30 +216,101 @@
             .admin-header {
                 padding: 1rem;
             }
+            
+            /* Mobile Navigation Improvements */
+            .navbar-collapse {
+                background-color: rgba(0,0,0,0.1);
+                border-radius: 0.5rem;
+                margin-top: 0.5rem;
+                padding: 0.5rem;
+            }
+            
+            .navbar-nav .nav-link {
+                font-size: 0.9rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+        }
+        
+        /* Extra Small Devices */
+        @media (max-width: 575.98px) {
+            .navbar {
+                padding: 0.5rem 0;
+            }
+            
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            
+            .badge {
+                font-size: 0.6rem;
+                padding: 0.25rem 0.5rem;
+            }
+        }
+        
+        /* Large Desktop Optimization */
+        @media (min-width: 1200px) {
+            .container-fluid {
+                max-width: 1400px;
+            }
+            
+            .navbar-nav .nav-item {
+                margin-right: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <!-- Top Navbar (replaces sidebar) -->
-    <nav class="navbar navbar-expand-lg navbar-dark py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-        <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-dark py-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container-fluid px-3">
+            <!-- Brand -->
             <a class="navbar-brand text-white fw-semibold d-flex align-items-center fs-4" href="{{ route('admin.dashboard') }}">
                 <i class="fas fa-calendar-alt me-2"></i>
-                <span>EventHub</span>
+                <span class="d-none d-sm-inline">EventHub</span>
                 <span class="badge bg-danger text-white ms-2 px-2 py-1 fs-6">ADMIN</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminTopNav" aria-controls="adminTopNav" aria-expanded="false" aria-label="Toggle navigation">
+            
+            <!-- Mobile Toggle Button -->
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#adminTopNav" aria-controls="adminTopNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
+            <!-- Navigation Menu -->
             <div class="collapse navbar-collapse" id="adminTopNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
-                    <li class="nav-item"><a class="nav-link text-white" href="{{ route('home') }}"><i class="fas fa-home"></i><span class="ms-2">Home</span></a></li>
-                    <li class="nav-item"><a class="nav-link text-white {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt"></i><span class="ms-2">Dashboard</span></a></li>
-                    <li class="nav-item"><a class="nav-link text-white {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i><span class="ms-2">Users</span></a></li>
+                <!-- Main Navigation - Responsive -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <!-- Home -->
+                    <li class="nav-item">
+                        <a class="nav-link text-white {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
+                            <i class="fas fa-home"></i>
+                            <span class="ms-1 d-none d-lg-inline">Home</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Dashboard -->
+                    <li class="nav-item">
+                        <a class="nav-link text-white {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span class="ms-1 d-none d-lg-inline">Dashboard</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Users -->
+                    <li class="nav-item">
+                        <a class="nav-link text-white {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
+                            <i class="fas fa-users"></i>
+                            <span class="ms-1 d-none d-lg-inline">Users</span>
+                        </a>
+                    </li>
 
+                    <!-- Vendors Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white {{ request()->routeIs('admin.vendor.*') ? 'active' : '' }}" href="#" id="vendorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-store"></i><span class="ms-2">Vendors</span>
+                            <i class="fas fa-store"></i>
+                            <span class="ms-1 d-none d-lg-inline">Vendors</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="vendorsDropdown">
                             <li><a class="dropdown-item {{ request()->routeIs('admin.vendor.applications*') ? 'active' : '' }}" href="{{ route('admin.vendor.applications') }}"><i class="fas fa-file-signature me-2"></i>Applications</a></li>
@@ -198,9 +318,11 @@
                         </ul>
                     </li>
 
+                    <!-- Events Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white {{ request()->routeIs('events.*') || request()->routeIs('admin.event-applications*') ? 'active' : '' }}" href="#" id="eventsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-calendar"></i><span class="ms-2">Events</span>
+                            <i class="fas fa-calendar"></i>
+                            <span class="ms-1 d-none d-lg-inline">Events</span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
                             <li><a class="dropdown-item {{ request()->routeIs('events.index') ? 'active' : '' }}" href="{{ route('events.index') }}"><i class="fas fa-list me-2"></i>All Events</a></li>
@@ -210,21 +332,27 @@
                         </ul>
                     </li>
 
+                    <!-- Reports -->
                     <li class="nav-item">
                         <a class="nav-link text-white {{ request()->routeIs('admin.reports*') ? 'active' : '' }}" href="{{ route('admin.reports.index') }}">
-                            <i class="fas fa-chart-line"></i><span class="ms-2">Reports</span>
+                            <i class="fas fa-chart-line"></i>
+                            <span class="ms-1 d-none d-lg-inline">Reports</span>
                         </a>
                     </li>
 
+                    <!-- Support -->
                     <li class="nav-item">
                         <a class="nav-link text-white {{ request()->routeIs('admin.support*') ? 'active' : '' }}" href="{{ route('admin.support.index') }}">
-                            <i class="fas fa-headset"></i><span class="ms-2">Customer Support</span>
+                            <i class="fas fa-headset"></i>
+                            <span class="ms-1 d-none d-lg-inline">Support</span>
                         </a>
                     </li>
                 </ul>
-                <ul class="navbar-nav ms-auto">
+                
+                <!-- Right Side Navigation -->
+                <ul class="navbar-nav">
                     <!-- Notifications -->
-                    <li class="nav-item me-3">
+                    <li class="nav-item me-2">
                         @php
                             $notifications = \App\Models\Notification::where('user_id', auth()->id())
                                 ->orderBy('created_at', 'desc')
@@ -237,9 +365,11 @@
                         <x-notifications :notifications="$notifications" :unreadCount="$unreadCount" />
                     </li>
                     
+                    <!-- User Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user me-2"></i>{{ Auth::user()->name }}
+                        <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-2"></i>
+                            <span class="d-none d-sm-inline">{{ Auth::user()->name }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user-circle me-2"></i>Profile</a></li>
