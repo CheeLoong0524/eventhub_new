@@ -24,10 +24,17 @@ use App\Http\Controllers\Api\AdminInquiryApiController;
 
 
 // Public API routes (no authentication required)
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('throttle:100,1')->group(function () {
     // Authentication APIs
     Route::get('/auth/user', [App\Http\Controllers\FirebaseAuthController::class, 'user']);
     Route::post('/auth/check-user', [App\Http\Controllers\FirebaseAuthController::class, 'checkUserExists']);
+    
+    // User Management APIs (External Consumption)
+    Route::get('/users-xml', [App\Http\Controllers\Api\UserAuthApiController::class, 'getUsersXml']);
+    Route::get('/users-xml/{id}', [App\Http\Controllers\Api\UserAuthApiController::class, 'getUserXml']);
+    Route::get('/users/{id}/auth-status', [App\Http\Controllers\Api\UserAuthApiController::class, 'getUserAuthStatus']);
+    Route::post('/users', [App\Http\Controllers\Api\UserAuthApiController::class, 'createUser']);
+    Route::put('/users/{id}', [App\Http\Controllers\Api\UserAuthApiController::class, 'updateUser']);
     
     // (CL) General event information API 
     Route::get('/events', [EventApiController::class, 'index']);

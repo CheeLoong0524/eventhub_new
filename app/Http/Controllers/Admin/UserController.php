@@ -7,18 +7,78 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * Display a listing of users
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(15);
-        return view('admin.users.index', compact('users'));
+        try {
+            // Auto-detect: if request has 'use_api' query param, consume externally
+            $useApi = $request->query('use_api', false);
+
+            if ($useApi) {
+                // External API consumption (simulate another module)
+                $response = Http::timeout(10)
+                    ->get(url('/api/v1/users-xml'));
+
+                if ($response->failed()) {
+                    throw new \Exception('Failed to fetch users from API');
+                }
+
+                $xml = simplexml_load_string($response->body());
+                $users = $this->parseUsersFromXml($xml);
+            } else {
+                // Internal service consumption
+                $users = User::orderBy('created_at', 'desc')->paginate(15);
+            }
+
+            return view('admin.users.index', compact('users'));
+
+        } catch (\Exception $e) {
+            return view('admin.users.index', [
+                'users' => collect([]),
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Parse users from XML response
+     */
+    private function parseUsersFromXml($xml)
+    {
+        $users = collect();
+        
+        foreach ($xml->user as $userXml) {
+            $users->push((object) [
+                'id' => (string) $userXml->user_id,
+                'name' => (string) $userXml->name,
+                'email' => (string) $userXml->email,
+                'role' => (string) $userXml->role,
+                'auth_method' => (string) $userXml->auth_method,
+                'is_active' => (string) $userXml->is_active === '1',
+                'phone' => (string) $userXml->phone,
+                'address' => (string) $userXml->address,
+                'created_at' => (string) $userXml->created_at,
+                'last_login_at' => (string) $userXml->last_login_at,
+            ]);
+        }
+        
+        return $users;
     }
 
     /**

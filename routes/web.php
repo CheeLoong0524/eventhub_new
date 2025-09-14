@@ -89,6 +89,57 @@ Route::get('/test-customer-event-details/{id}', function($id) {
     return response()->json(['event' => $event->name, 'status' => 'success']);
 });
 
+// Test User API consumption
+Route::get('/test-user-api', function() {
+    try {
+        // Test external API consumption
+        $response = Http::timeout(10)
+            ->get(url('/api/v1/users-xml'));
+
+        if ($response->failed()) {
+            throw new \Exception('Failed to fetch users from API');
+        }
+
+        $xml = simplexml_load_string($response->body());
+        $userCount = count($xml->user);
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User API consumption test successful',
+            'user_count' => $userCount,
+            'api_response' => $response->body()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'User API consumption test failed',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// Test User API with internal service
+Route::get('/test-user-internal', function() {
+    try {
+        $userService = app(\App\Services\UserService::class);
+        $xml = $userService->generateUsersXml();
+        $userCount = count($xml->user);
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User internal service test successful',
+            'user_count' => $userCount,
+            'xml_response' => $xml->asXML()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'User internal service test failed',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Protected routes
 Route::middleware('auth')->group(function () {
     // Main dashboard
@@ -184,7 +235,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/applications', [VendorController::class, 'showApplications'])->name('applications');
         Route::get('/applications/{id}', [VendorController::class, 'showApplication'])->name('applications.show');
         Route::delete('/applications/{id}/cancel', [VendorController::class, 'cancelApplication'])->name('applications.cancel');
-        Route::delete('/applications/{id}/delete', [VendorController::class, 'deleteApplication'])->name('applications.delete');
         
         // Payment routes
         Route::get('/applications/{id}/payment', [VendorController::class, 'showPayment'])->name('payment');
