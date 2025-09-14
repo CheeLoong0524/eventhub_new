@@ -1,3 +1,6 @@
+
+<!--  Author  : Choong Yoong Sheng (Vendor module) -->
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>

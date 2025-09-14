@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+{{-- Author  : Choong Yoong Sheng (Vendor module) --}}
+
 @section('title', 'Event Applications - EventHub')
 @section('page-title', 'Event Applications')
 @section('page-description', 'Manage vendor applications for events')

@@ -1,5 +1,7 @@
 @extends('layouts.vendor')
 
+{{-- Author  : Choong Yoong Sheng (Vendor module) --}}
+
 @section('title', 'Application Status - EventHub')
 
 @section('page-title', 'Application Status')

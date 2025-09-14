@@ -179,6 +179,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/applications', [VendorController::class, 'showApplications'])->name('applications');
         Route::get('/applications/{id}', [VendorController::class, 'showApplication'])->name('applications.show');
         Route::delete('/applications/{id}/cancel', [VendorController::class, 'cancelApplication'])->name('applications.cancel');
+        Route::delete('/applications/{id}/delete', [VendorController::class, 'deleteApplication'])->name('applications.delete');
         
         // Payment routes
         Route::get('/applications/{id}/payment', [VendorController::class, 'showPayment'])->name('payment');

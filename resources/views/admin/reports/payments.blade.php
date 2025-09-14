@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+{{-- Author  : Choong Yoong Sheng (Vendor module) --}}
+
 @section('title', 'Payment Reports - EventHub')
 @section('page-title', 'Payment Reports')
 @section('page-description', 'View detailed vendor payment history and transactions')

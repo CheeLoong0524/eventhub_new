@@ -1,5 +1,8 @@
 <?php
 
+// Author  : Choong Yoong Sheng (Vendor module)
+
+
 namespace App\Http\Controllers;
 
 use App\Models\Vendor;
@@ -8,6 +11,7 @@ use App\Models\VendorEventApplication;
 use App\Payment\PaymentBuilder;
 use App\Services\ExternalApiService;
 use App\Services\VendorService;
+use App\Factories\VendorFactoryManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -41,7 +45,7 @@ class VendorController extends Controller
                       ->where('status', '!=', 'cancelled');
             })
             ->where(function($query) {
-                $query->where('start_time', '>', now())  // 只顯示未來的事件
+                $query->where('start_time', '>', now()->endOfDay())  // 只顯示未來的事件
                       ->orWhereNull('start_time');
             })
             ->with(['venue'])
@@ -147,8 +151,8 @@ class VendorController extends Controller
                 return redirect()->route('vendor.dashboard')->with('info', 'You have already submitted a vendor application.');
             }
 
-            // First-time submission
-            $vendor = Vendor::create([
+            // First-time submission using VendorFactoryManager with decorators
+            $vendor = VendorFactoryManager::createVendor([
                 'user_id' => Auth::id(),
                 'business_name' => $request->business_name,
                 'business_type' => $request->business_type,
@@ -380,9 +384,8 @@ class VendorController extends Controller
             $events = Event::where('status', 'active')
                           ->whereNotNull('booth_price')
                           ->where('booth_quantity', '>', 0)
-                          ->whereRaw('booth_quantity > booth_sold')
                           ->where(function($query) {
-                              $query->where('start_time', '>', now())
+                              $query->where('start_time', '>', now()->endOfDay())
                                     ->orWhereNull('start_time');
                           })
                           ->orderBy('start_time')
@@ -972,16 +975,69 @@ class VendorController extends Controller
             if (!$result['success']) {
                 // Fallback: direct DB update to avoid losing state
                 $event->increment('booth_sold', $boothQuantity);
+                $event->decrement('booth_quantity', $boothQuantity);
                 $event->updateFinancials();
             }
         } catch (\Throwable $e) {
             // Fallback on exceptions as well
             $event->increment('booth_sold', $boothQuantity);
+            $event->decrement('booth_quantity', $boothQuantity);
             $event->updateFinancials();
         }
 
         return redirect()->route('vendor.bookings')
                         ->with('success', 'Payment processed successfully! Amount paid: RM ' . number_format($finalAmount, 2) . '. Your booth is now confirmed.');
+    }
+
+    /**
+     * Delete application
+     */
+    public function deleteApplication($id)
+    {
+        $vendor = Auth::user()->vendor;
+        
+        if (!$vendor) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vendor profile not found'
+            ], 404);
+        }
+
+        try {
+            $application = VendorEventApplication::where('vendor_id', $vendor->id)
+                ->findOrFail($id);
+
+            // Check if application is paid - if so, we need to update booth quantities
+            if ($application->status === 'paid') {
+                $event = $application->event;
+                $boothQuantity = $application->booth_quantity ?? 1;
+                
+                // Add back the booths to available quantity
+                $event->increment('booth_quantity', $boothQuantity);
+                $event->decrement('booth_sold', $boothQuantity);
+                $event->updateFinancials();
+            }
+
+            // Delete the application
+            $application->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Application deleted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to delete application', [
+                'application_id' => $id,
+                'vendor_id' => $vendor->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete application: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 }

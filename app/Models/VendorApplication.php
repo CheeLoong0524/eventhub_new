@@ -1,5 +1,8 @@
 <?php
 
+// Author  : Choong Yoong Sheng (Vendor module)
+
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

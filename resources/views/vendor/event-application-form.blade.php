@@ -1,5 +1,8 @@
 @extends('layouts.vendor')
 
+{{-- Author  : Choong Yoong Sheng (Vendor module) --}}
+
+
 @section('title', 'Apply for Event - EventHub')
 @section('page-title', 'Apply for Event')
 @section('page-description', 'Submit your application to participate in this event')
@@ -61,7 +64,7 @@
                             <div class="col-md-6">
                                 <div class="availability-info">
                                     <p class="mb-1"><strong>Available Booths:</strong> 
-                                        <span class="text-success">{{ $event->available_booths }}/{{ $event->booth_quantity }}</span>
+                                        <span class="text-success">{{ $event->available_booths }} booths available</span>
                                     </p>
                                     <p class="mb-1"><strong>Booths Sold:</strong> 
                                         <span class="text-info">{{ $event->booth_sold }}</span>

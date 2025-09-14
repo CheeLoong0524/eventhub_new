@@ -1,5 +1,7 @@
 @extends('layouts.vendor')
 
+{{-- Author  : Choong Yoong Sheng (Vendor module) --}}
+
 @section('title', 'Available Events - EventHub')
 @section('page-title', 'Available Events')
 @section('page-description', 'Browse and apply to available events')
@@ -444,7 +446,7 @@ body {
                                         <div class="text-end">
                                             <small class="text-muted">
                                                 <i class="fas fa-hashtag me-1"></i>
-                                                {{ $event->available_booths }}/{{ $event->booth_quantity }} booths
+                                                {{ $event->available_booths }} booths available
                                             </small>
                                         </div>
                                     </div>

@@ -1,5 +1,7 @@
 @extends('layouts.vendor')
 
+{{-- Author  : Choong Yoong Sheng (Vendor module) --}}
+
 @section('title', 'My Applications - EventHub')
 @section('page-title', 'My Applications')
 @section('page-description', 'Track your event application status and history')
@@ -85,6 +87,12 @@
                                     <span class="badge bg-success">
                                         <i class="fas fa-check me-1"></i>Paid
                                     </span>
+                                    {{-- Delete button for paid applications --}}
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            onclick="deleteApplication({{ $application->id ?? 0 }})"
+                                            title="Delete Application">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
                                 @elseif(($application->status ?? 'pending') === 'approved')
                                     <a href="{{ route('vendor.payment', $application->id) }}" 
                                        class="btn btn-sm btn-success">
@@ -98,6 +106,13 @@
                                     <button class="btn btn-sm btn-outline-danger" 
                                             onclick="cancelApplication({{ $application->id ?? 0 }})">
                                         <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                @elseif(in_array($application->status ?? 'pending', ['cancelled', 'rejected']))
+                                    {{-- Delete button only for cancelled and rejected applications --}}
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            onclick="deleteApplication({{ $application->id ?? 0 }})"
+                                            title="Delete Application">
+                                        <i class="fas fa-trash"></i> Delete
                                     </button>
                                 @endif
                             </div>
@@ -175,6 +190,30 @@ function cancelApplication(applicationId) {
         .catch(error => {
             console.error('Error:', error);
             alert('An error occurred while canceling the application');
+        });
+    }
+}
+
+function deleteApplication(applicationId) {
+    if (confirm('Are you sure you want to permanently delete this application? This action cannot be undone.')) {
+        fetch(`/vendor/applications/${applicationId}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to delete application: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the application');
         });
     }
 }

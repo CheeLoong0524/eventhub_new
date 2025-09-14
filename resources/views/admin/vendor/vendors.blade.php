@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+{{-- Author  : Choong Yoong Sheng (Vendor module) --}}
+
 @section('title', 'Approved Vendors')
 
 @section('content')

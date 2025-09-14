@@ -1,4 +1,6 @@
-<?php
+<?php   
+
+// Author  : Choong Yoong Sheng (Payment module)
 
 namespace App\Payment;
 

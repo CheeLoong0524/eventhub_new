@@ -1,5 +1,7 @@
 <?php
 
+// Author  : Choong Yoong Sheng (Payment module)
+
 namespace App\Payment;
 
 class BasePayment implements PaymentInterface

@@ -1,5 +1,7 @@
 @extends('layouts.vendor')
 
+{{-- Author  : Choong Yoong Sheng (Vendor module) --}}
+
 @section('title', 'Event Details - ' . $event->name)
 
 @section('content')
@@ -45,7 +47,7 @@
                             <p class="mb-1"><strong>Organizer:</strong> {{ $event->organizer ?? 'N/A' }}</p>
                             <p class="mb-1"><strong>Available Booths:</strong> 
                                 <span class="text-success">
-                                    {{ $event->available_booths }}/{{ $event->booth_quantity }}
+                                    {{ $event->available_booths }} booths available
                                 </span>
                             </p>
                         </div>
@@ -91,7 +93,7 @@
 
                                 @if($event->booth_quantity > 0)
                                     <span class="badge bg-secondary fs-6 ms-2">
-                                        {{ $event->booth_sold }}/{{ $event->booth_quantity }} booths sold
+                                        {{ $event->booth_sold }} booths sold
                                     </span>
                                 @endif
                             </div>

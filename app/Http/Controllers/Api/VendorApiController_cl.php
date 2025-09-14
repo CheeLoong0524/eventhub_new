@@ -63,6 +63,7 @@ class VendorApiController_cl extends Controller
                     
                     // Subtract sold booths (increase available booths)
                     $event->booth_sold += $quantity;
+                    $event->booth_quantity -= $quantity;
                     
                 } else { // add operation
                     // Check if we're not going below zero
@@ -72,6 +73,7 @@ class VendorApiController_cl extends Controller
                     
                     // Add back to available booths (decrease sold booths)
                     $event->booth_sold -= $quantity;
+                    $event->booth_quantity += $quantity;
                 }
 
                 $event->save();
@@ -150,9 +152,8 @@ class VendorApiController_cl extends Controller
                 ->where('status', 'active')
                 ->whereNotNull('booth_price')
                 ->where('booth_quantity', '>', 0)
-                ->whereRaw('booth_quantity > booth_sold') // Has available booths
                 ->where(function($q) {
-                    $q->where('start_time', '>', now())  // 只顯示未來的事件
+                    $q->where('start_time', '>', now()->endOfDay())  // 只顯示未來的事件
                       ->orWhereNull('start_time');
                 });
             

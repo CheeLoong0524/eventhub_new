@@ -1,5 +1,7 @@
 <?php
 
+// Author  : Choong Yoong Sheng (Vendor module)
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;

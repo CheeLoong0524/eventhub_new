@@ -195,12 +195,12 @@ class Event extends Model
 
     public function hasAvailableSlots()
     {
-        return $this->booth_quantity > $this->booth_sold;
+        return $this->booth_quantity > 0;
     }
 
     public function getAvailableBoothsAttribute()
     {
-        return $this->booth_quantity - $this->booth_sold;
+        return $this->booth_quantity;
     }
 
     public function getAvailableTicketsAttribute()

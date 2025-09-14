@@ -1,5 +1,8 @@
 <?php
 
+// Author  : Choong Yoong Sheng (Vendor module)
+
+
 namespace App\Services;
 
 use App\Models\Vendor;
@@ -130,9 +133,8 @@ class VendorService
             $events = Event::where('status', 'active')
                 ->whereNotNull('booth_price')
                 ->where('booth_quantity', '>', 0)
-                ->whereRaw('booth_quantity > booth_sold')
                 ->where(function($query) {
-                    $query->where('start_time', '>', now())
+                    $query->where('start_time', '>', now()->endOfDay())
                           ->orWhereNull('start_time');
                 })
                 ->with(['venue'])
@@ -278,11 +280,13 @@ class VendorService
                         throw new \Exception('Insufficient booths available');
                     }
                     $event->increment('booth_sold', $quantity);
+                    $event->decrement('booth_quantity', $quantity);
                 } elseif ($operation === 'add') {
                     if ($event->booth_sold < $quantity) {
                         throw new \Exception('Cannot add more booths than sold');
                     }
                     $event->decrement('booth_sold', $quantity);
+                    $event->increment('booth_quantity', $quantity);
                 }
 
                 $event->updateFinancials();

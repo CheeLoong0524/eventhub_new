@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+{{-- Author  : Choong Yoong Sheng (Vendor module) --}}
+
 @section('title', 'Event Financial Report - EventHub')
 @section('page-title', 'Event Financial Report')
 @section('page-description', 'Detailed financial analysis for "' . $event->name . '"')
@@ -135,7 +137,7 @@
                     <div class="mt-2">
                         <small class="text-white-75">
                             <i class="fas fa-hashtag me-1"></i>
-                            {{ $event->booth_sold }}/{{ $event->booth_quantity }} booths sold
+                            {{ $event->booth_sold }} booths sold
                         </small>
                     </div>
                 </div>
