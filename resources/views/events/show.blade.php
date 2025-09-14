@@ -1,16 +1,10 @@
-@extends('layouts.app')
+@extends('layouts.admin')
+
+@section('title', 'Show Event - EventHub')
+@section('page-title', 'Show Event')
+@section('page-description', 'Show the event details for "' . $event->name . '"')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Breadcrumbs -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('events.index') }}">Events</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ $event->name }}</li>
-        </ol>
-    </nav>
-
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">

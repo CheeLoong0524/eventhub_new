@@ -6,16 +6,7 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('events.index') }}">Events</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Create Event</li>
-        </ol>
-    </nav>
-
-    <!-- Header -->
+     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>

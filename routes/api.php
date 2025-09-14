@@ -29,10 +29,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/auth/user', [App\Http\Controllers\FirebaseAuthController::class, 'user']);
     Route::post('/auth/check-user', [App\Http\Controllers\FirebaseAuthController::class, 'checkUserExists']);
     
-    // General event information API (CL)
+    // (CL) General event information API 
     Route::get('/events', [EventApiController::class, 'index']);
     Route::get('/events/{event}', [EventApiController::class, 'show']);
-    Route::get('/venues/{venue}/events', [EventApiController::class, 'getByVenue']);
     
     // Inquiry API - Public access to inquiry data
     Route::get('/inquiries', [InquiryController::class, 'index']);
@@ -62,7 +61,7 @@ Route::prefix('v1')->group(function () {
 });
 
 
-//CL: APIs for ticketing page to get ticket information
+// (CL) APIs for ticketing module to get ticket information
 // Ticketing Module API routes
 Route::prefix('v1/ticketing')->group(function () {
     // Get ticket information
@@ -76,14 +75,15 @@ Route::prefix('v1/ticketing')->group(function () {
 });
 
 
-// CL: APIs for vendor page to get event information 
+// (CL) APIs for vendor page to get event information 
 // Vendor Module API routes
 Route::prefix('v1/vendor')->group(function () {
     // Get event and booth information
-    Route::get('/events', [VendorApiController_cl::class, 'getAllEventsWithBooths']); //time format (date + time)
-    Route::get('/events/accepting-applications', [VendorApiController_cl::class, 'getEventsAcceptingApplications']); 
     Route::get('/events/{event}', [VendorApiController_cl::class, 'getEventInfo']);
     Route::get('/events/{event}/booths', [VendorApiController_cl::class, 'getBoothInfo']);
+    Route::get('/events', [VendorApiController_cl::class, 'getAllEventsWithBooths']); 
+    Route::get('/events/accepting-applications', [VendorApiController_cl::class, 'getEventsAcceptingApplications']); 
+    
     
     // Update booth quantities (requires authentication)
     Route::middleware('auth:sanctum')->group(function () {

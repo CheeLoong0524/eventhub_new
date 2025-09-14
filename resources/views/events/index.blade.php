@@ -25,7 +25,7 @@
 
 
     
-    <!-- Quick Status: Total events, Upcoming events, Total Activities, Unique Venue --> 
+    <!-- Quick Status: Total events, Upcoming events, Total Activities, Total Venue --> 
     @if($events->count() > 0)
     <div class="row mt-4">
         <div class="col-md-3">
@@ -79,7 +79,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="mb-0">{{ $events->unique('venue_id')->count() }}</h4>
-                            <small>Unique Venues</small>
+                            <small>Total Venues</small>
                         </div>
                         <div class="align-self-center">
                             <i class="fas fa-map-marker-alt fa-2x"></i>

@@ -6,17 +6,6 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Navigation Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('events.index') }}">Events</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('events.show', $event->id) }}">{{ $event->name }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Edit Event</li>
-        </ol>
-    </nav>
-
-
     <!-- Form Section -->
     <div class="row">
         <div class="col-lg-8">
