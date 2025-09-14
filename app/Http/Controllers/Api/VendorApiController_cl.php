@@ -13,28 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class VendorApiController_cl extends Controller
 {
-    /**
-     * Get event information for vendor display
-     */
-    public function getEventInfo(Event $event): JsonResponse
-    {
-        try {
-            $event->load(['venue', 'activities']);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Event information retrieved successfully',
-                'data' => new EventResource($event)
-            ], 200);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve event information',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
     /**
      * Get booth information for a specific event
@@ -125,7 +103,7 @@ class VendorApiController_cl extends Controller
     }
 
     /**
-     * Get all events with booth information
+     * Get all events with booth information - Excluded activites information
      */
     public function getAllEventsWithBooths(Request $request): JsonResponse
     {
@@ -163,7 +141,7 @@ class VendorApiController_cl extends Controller
     }
 
     /**
-     * Get events accepting vendor applications
+     * Get events accepting vendor applications - works to display available (valid data & time)
      */
     public function getEventsAcceptingApplications(Request $request): JsonResponse
     {

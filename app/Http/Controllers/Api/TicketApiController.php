@@ -102,41 +102,4 @@ class TicketApiController extends Controller
         }
     }
 
-    /**
-     * Get all events with ticket information
-     */
-    public function getAllEventsWithTickets(Request $request): JsonResponse
-    {
-        try {
-            $query = Event::with(['venue'])
-                ->whereNotNull('ticket_price')
-                ->where('ticket_quantity', '>', 0);
-            
-            // Filter by status if provided
-            if ($request->has('status')) {
-                $query->where('status', $request->status);
-            }
-            
-            $events = $query->paginate($request->get('per_page', 15));
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Events with ticket information retrieved successfully',
-                'data' => EventResource::collection($events),
-                'pagination' => [
-                    'current_page' => $events->currentPage(),
-                    'last_page' => $events->lastPage(),
-                    'per_page' => $events->perPage(),
-                    'total' => $events->total(),
-                ]
-            ], 200);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve events with ticket information',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 }

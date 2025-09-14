@@ -416,7 +416,7 @@ class VendorController extends Controller
             if ($useApi) {
                 // External API consumption (simulate another module)
                 $response = Http::timeout(10)
-                    ->get(url("/api/v1/vendor/events/{$id}"));
+                    ->get(url("/api/v1/events/{$id}"));
 
                 if ($response->failed()) {
                     throw new \Exception('Failed to fetch event from API');

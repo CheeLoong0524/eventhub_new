@@ -66,28 +66,24 @@ Route::prefix('v1')->group(function () {
 Route::prefix('v1/ticketing')->group(function () {
     // Get ticket information
     Route::get('/events/{event}/tickets', [TicketApiController::class, 'getTicketInfo']);
-    Route::get('/events', [TicketApiController::class, 'getAllEventsWithTickets']);
     
     // Update ticket quantities (requires authentication)
     Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/events/{event}/tickets/quantity', [TicketApiController::class, 'updateTicketQuantity']);
     });
+    
 });
 
 
 // (CL) APIs for vendor page to get event information 
 // Vendor Module API routes
 Route::prefix('v1/vendor')->group(function () {
-    // Get event and booth information
-    Route::get('/events/{event}', [VendorApiController_cl::class, 'getEventInfo']);
-    Route::get('/events/{event}/booths', [VendorApiController_cl::class, 'getBoothInfo']);
-    Route::get('/events', [VendorApiController_cl::class, 'getAllEventsWithBooths']); 
-    Route::get('/events/accepting-applications', [VendorApiController_cl::class, 'getEventsAcceptingApplications']); 
-    
-    
+    Route::get('/events/{event}/booths', [VendorApiController_cl::class, 'getBoothInfo']); //good,but no use
+    Route::get('/events', [VendorApiController_cl::class, 'getAllEventsWithBooths']); // excluded activities information
+    Route::get('/events/accepting-applications', [VendorApiController_cl::class, 'getEventsAcceptingApplications']); //got use
     // Update booth quantities (requires authentication)
     Route::middleware('auth:sanctum')->group(function () {
-        Route::patch('/events/{event}/booths/quantity', [VendorApiController_cl::class, 'updateBoothQuantity']);
+        Route::patch('/events/{event}/booths/quantity', [VendorApiController_cl::class, 'updateBoothQuantity']);//good 
     });
 });
 
