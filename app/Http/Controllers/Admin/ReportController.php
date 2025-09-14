@@ -154,7 +154,7 @@ class ReportController extends Controller
         
         $totalPayments = VendorEventApplication::where('status', 'paid')->count();
         $totalPaymentAmount = VendorEventApplication::where('status', 'paid')
-            ->sum('approved_price');
+            ->sum('final_amount');
         
         return view('admin.reports.payments', compact(
             'payments', 'totalPayments', 'totalPaymentAmount'

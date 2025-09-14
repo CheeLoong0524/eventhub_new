@@ -135,9 +135,7 @@ Route::middleware('auth')->group(function () {
         // Financial reports routes
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/event/{id}', [ReportController::class, 'event'])->name('reports.event');
-        Route::get('/reports/payments', [ReportController::class, 'payments'])->name('reports.payments');
-        Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
-        
+
         // Admin Support routes
         Route::prefix('support')->name('support.')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\SupportController::class, 'index'])->name('index');
