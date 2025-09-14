@@ -228,6 +228,24 @@ Route::middleware('auth')->group(function () {
             ]);
         })->name('admin.test.customer.check');
         
+        // Test user management debug
+        Route::get('/test-user-management', function() {
+            $users = \App\Models\User::orderBy('created_at', 'desc')->paginate(15);
+            return response()->json([
+                'total_users' => $users->total(),
+                'per_page' => $users->perPage(),
+                'current_page' => $users->currentPage(),
+                'count' => $users->count(),
+                'users' => $users->items()
+            ]);
+        })->name('admin.test.user.management');
+        
+        // Test user management view
+        Route::get('/test-user-view', function() {
+            $users = \App\Models\User::orderBy('created_at', 'desc')->paginate(15);
+            return view('admin.users.index', compact('users'));
+        })->name('admin.test.user.view');
+        
     });
     
     // Vendor routes

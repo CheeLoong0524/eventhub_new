@@ -26,35 +26,13 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        try {
-            // Auto-detect: if request has 'use_api' query param, consume externally
-            $useApi = $request->query('use_api', false);
+        // Use standard Eloquent pagination for the index page
+        $users = User::orderBy('created_at', 'desc')->paginate(15);
+        
+        // Debug: Log the users count
+        \Log::info('UserController index - Users count: ' . $users->count());
 
-            if ($useApi) {
-                // External API consumption (simulate another module)
-                $response = Http::timeout(10)
-                    ->get(url('/api/v1/users-xml'));
-
-                if ($response->failed()) {
-                    throw new \Exception('Failed to fetch users from API');
-                }
-
-                $xml = simplexml_load_string($response->body());
-                $users = $this->parseUsersFromXml($xml);
-            } else {
-                // Internal service consumption
-                $xml = $this->userService->generateUsersXml();
-                $users = $this->parseUsersFromXml($xml);
-            }
-
-            return view('admin.users.index', compact('users'));
-
-        } catch (\Exception $e) {
-            return view('admin.users.index', [
-                'users' => collect([]),
-                'error' => $e->getMessage(),
-            ]);
-        }
+        return view('admin.users.index', compact('users'));
     }
 
     /**
