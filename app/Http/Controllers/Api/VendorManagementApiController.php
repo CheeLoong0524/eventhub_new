@@ -21,7 +21,6 @@ class VendorManagementApiController extends Controller
         $validator = Validator::make($request->all(), [
             'status' => 'nullable|string|in:pending,approved,rejected,suspended',
             'service_type' => 'nullable|string|in:food,equipment,decoration,entertainment,logistics,other',
-            'search' => 'nullable|string|max:255',
             'page' => 'nullable|integer|min:1',
             'per_page' => 'nullable|integer|min:1|max:100'
         ]);
@@ -44,9 +43,6 @@ class VendorManagementApiController extends Controller
             $query->where('service_type', $request->service_type);
         }
 
-        if ($request->filled('search')) {
-            $query->where('business_name', 'like', '%' . $request->search . '%');
-        }
 
         $perPage = $request->get('per_page', 15);
         $vendors = $query->orderBy('created_at', 'desc')->paginate($perPage);

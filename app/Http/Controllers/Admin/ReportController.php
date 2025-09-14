@@ -28,7 +28,7 @@ class ReportController extends Controller
         // Booth statistics
         $totalBooths = Event::sum('booth_quantity');
         $soldBooths = Event::sum('booth_sold');
-        $boothRevenue = VendorEventApplication::where('status', 'paid')->sum('final_amount');
+        $boothRevenue = VendorEventApplication::where('status', 'paid')->sum('approved_price');
         
         // Recent events with financial data
         $recentEvents = Event::with(['venue'])
@@ -110,7 +110,7 @@ class ReportController extends Controller
             if ($application->status === 'paid') {
                 $boothSize = $application->booth_size ?? 'Standard';
                 $quantity = $application->booth_quantity ?? 1;
-                $revenue = $application->final_amount ?? 0;
+                $revenue = $application->approved_price ?? 0;
                 
                 if (!isset($breakdown[$boothSize])) {
                     $breakdown[$boothSize] = [
@@ -154,7 +154,7 @@ class ReportController extends Controller
         
         $totalPayments = VendorEventApplication::where('status', 'paid')->count();
         $totalPaymentAmount = VendorEventApplication::where('status', 'paid')
-            ->sum('final_amount');
+            ->sum('approved_price');
         
         return view('admin.reports.payments', compact(
             'payments', 'totalPayments', 'totalPaymentAmount'

@@ -20,13 +20,7 @@ class VendorEventApplication extends Model
         'service_categories',
         'requested_price',
         'approved_price',
-        'base_amount',
-        'tax_amount',
-        'service_charge_amount',
-        'final_amount',
         'special_requirements',
-        'equipment_needed',
-        'additional_services',
         'status',
         'admin_notes',
         'rejection_reason',
@@ -39,14 +33,8 @@ class VendorEventApplication extends Model
 
     protected $casts = [
         'service_categories' => 'array',
-        'equipment_needed' => 'array',
-        'additional_services' => 'array',
         'requested_price' => 'decimal:2',
         'approved_price' => 'decimal:2',
-        'base_amount' => 'decimal:2',
-        'tax_amount' => 'decimal:2',
-        'service_charge_amount' => 'decimal:2',
-        'final_amount' => 'decimal:2',
         'reviewed_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
@@ -164,7 +152,7 @@ class VendorEventApplication extends Model
 
     public function canBeCancelled(): bool
     {
-        return $this->status === 'pending';
+        return in_array($this->status, ['pending', 'approved']);
     }
 
     public function canBeEdited(): bool

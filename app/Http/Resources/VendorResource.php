@@ -54,7 +54,7 @@ class VendorResource extends JsonResource
                         'service_type' => $application->service_type,
                         'service_description' => $application->service_description,
                         'requested_price' => $application->requested_price,
-                        'final_amount' => $application->final_amount,
+                        'final_amount' => $application->approved_price ?? $application->requested_price,
                         'status' => $application->status,
                         'applied_at' => $application->created_at?->format('Y-m-d H:i:s'),
                         'paid_at' => $application->paid_at?->format('Y-m-d H:i:s'),

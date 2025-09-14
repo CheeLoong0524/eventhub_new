@@ -82,62 +82,6 @@ class VendorApiController extends Controller
         ]);
     }
 
-    /**
-     * Search vendors
-     * IFA: Vendor Search Service
-     */
-    public function searchVendors(Request $request): JsonResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'query' => 'nullable|string|max:255',
-            'service_type' => 'nullable|string|in:food,equipment,decoration,entertainment,logistics,other',
-            'status' => 'nullable|string|in:pending,approved,rejected,suspended',
-            'page' => 'nullable|integer|min:1',
-            'per_page' => 'nullable|integer|min:1|max:100'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid search parameters',
-                'errors' => $validator->errors()
-            ], 400);
-        }
-
-        $query = Vendor::with('user')
-            ->where('status', 'approved');
-
-        if ($request->filled('query')) {
-            $query->where(function($q) use ($request) {
-                $q->where('business_name', 'like', '%' . $request->query . '%')
-                  ->orWhere('business_description', 'like', '%' . $request->query . '%');
-            });
-        }
-
-        if ($request->filled('service_type')) {
-            $query->where('service_type', $request->service_type);
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $perPage = $request->get('per_page', 15);
-        $vendors = $query->paginate($perPage);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => [
-                'vendors' => $vendors->items(),
-                'pagination' => [
-                    'current_page' => $vendors->currentPage(),
-                    'last_page' => $vendors->lastPage(),
-                    'per_page' => $vendors->perPage(),
-                    'total' => $vendors->total()
-                ]
-            ]
-        ]);
-    }
 
     /**
      * Get event applications for a specific event
@@ -292,13 +236,17 @@ class VendorApiController extends Controller
 
         $validator = Validator::make($request->all(), [
             'business_name' => 'required|string|max:255',
-            'business_type' => 'required|string|max:100',
-            'business_description' => 'required|string|max:500',
-            'contact_person' => 'required|string|max:255',
-            'contact_email' => 'required|email|max:255',
-            'contact_phone' => 'required|string|max:20',
-            'business_address' => 'required|string|max:500',
-            'website' => 'nullable|url|max:255'
+            'business_type' => 'required|string|in:food_beverage,equipment_rental,decoration_design,entertainment,logistics_transportation,other',
+            'business_description' => 'required|string|max:1000',
+            'business_phone' => 'required|string|max:20',
+            'business_email' => 'required|email|max:255',
+            'years_in_business' => 'required|integer|min:0|max:100',
+            'business_size' => 'required|string|in:solo,small_team,medium_company,large_enterprise',
+            'annual_revenue' => 'required|string|in:under_50k,50k_100k,100k_250k,250k_500k,500k_1m,over_1m',
+            'event_experience' => 'required|string|in:none,1_2_events,3_5_events,6_10_events,over_10_events',
+            'product_category' => 'required|string|in:food_beverage,clothing_fashion,electronics_tech,home_garden,sports_outdoor,beauty_health,books_media,automotive,other',
+            'target_audience' => 'required|string|in:children,teens,adults,seniors,all_ages,professionals,students,families',
+            'marketing_strategy' => 'required|string|max:2000'
         ]);
 
         if ($validator->fails()) {
@@ -312,8 +260,9 @@ class VendorApiController extends Controller
         try {
             $vendor->update($request->only([
                 'business_name', 'business_type', 'business_description',
-                'contact_person', 'contact_email', 'contact_phone',
-                'business_address', 'website'
+                'business_phone', 'business_email', 'years_in_business',
+                'business_size', 'annual_revenue', 'event_experience',
+                'product_category', 'target_audience', 'marketing_strategy'
             ]));
 
             return response()->json([
@@ -333,6 +282,63 @@ class VendorApiController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Get vendor's business information (for external modules)
+     * IFA: Vendor Business Information Service
+     */
+    public function getBusinessInfo(Request $request, $id): JsonResponse
+    {
+        $validator = Validator::make(['vendor_id' => $id], [
+            'vendor_id' => 'required|integer|exists:vendors,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid vendor ID',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        $vendor = Vendor::with('user')->find($id);
+
+        if (!$vendor) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Vendor not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'vendor_id' => $vendor->id,
+                'user_id' => $vendor->user_id,
+                'business_name' => $vendor->business_name,
+                'business_type' => $vendor->business_type,
+                'business_description' => $vendor->business_description,
+                'business_phone' => $vendor->business_phone,
+                'business_email' => $vendor->business_email,
+                'years_in_business' => $vendor->years_in_business,
+                'business_size' => $vendor->business_size,
+                'annual_revenue' => $vendor->annual_revenue,
+                'event_experience' => $vendor->event_experience,
+                'product_category' => $vendor->product_category,
+                'target_audience' => $vendor->target_audience,
+                'marketing_strategy' => $vendor->marketing_strategy,
+                'status' => $vendor->status,
+                'is_verified' => $vendor->is_verified,
+                'user_details' => [
+                    'name' => $vendor->user->name,
+                    'email' => $vendor->user->email,
+                    'phone' => $vendor->user->phone,
+                    'address' => $vendor->user->address
+                ],
+                'updated_at' => $vendor->updated_at
+            ]
+        ]);
     }
 
     /**
@@ -405,7 +411,7 @@ class VendorApiController extends Controller
                         'event_name' => $booking->event->name,
                         'booth_size' => $booking->booth_size,
                         'booth_quantity' => $booking->booth_quantity,
-                        'final_amount' => $booking->final_amount,
+                        'final_amount' => $booking->approved_price ?? $booking->requested_price,
                         'paid_at' => $booking->paid_at
                     ];
                 })

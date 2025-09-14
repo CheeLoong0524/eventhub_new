@@ -1,0 +1,406 @@
+{
+	"info": {
+		"_postman_id": "vendor-module-api-collection",
+		"name": "Vendor Module API Collection",
+		"description": "測試 Vendor Module 的 Internal/External API 模式",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Internal API Tests (Default Mode)",
+			"item": [
+				{
+					"name": "Vendor Dashboard (Internal)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/dashboard",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "dashboard"]
+						},
+						"description": "測試內部服務的 vendor dashboard"
+					},
+					"response": []
+				},
+				{
+					"name": "Available Events (Internal)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/events",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "events"]
+						},
+						"description": "測試內部服務的可用事件列表"
+					},
+					"response": []
+				},
+				{
+					"name": "Event Details (Internal)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/events/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "events", "1"]
+						},
+						"description": "測試內部服務的事件詳情"
+					},
+					"response": []
+				},
+				{
+					"name": "Vendor Applications (Internal)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "applications"]
+						},
+						"description": "測試內部服務的 vendor 申請列表"
+					},
+					"response": []
+				},
+				{
+					"name": "Vendor Bookings (Internal)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "bookings"]
+						},
+						"description": "測試內部服務的 vendor 預訂列表"
+					},
+					"response": []
+				}
+			],
+			"description": "測試內部服務模式（默認）"
+		},
+		{
+			"name": "2. External API Tests (Simulate Other Modules)",
+			"item": [
+				{
+					"name": "Available Events (External)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/events?use_api=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "events"],
+							"query": [
+								{
+									"key": "use_api",
+									"value": "true",
+									"description": "啟用外部 API 模式"
+								}
+							]
+						},
+						"description": "測試外部 API 模式的可用事件列表"
+					},
+					"response": []
+				},
+				{
+					"name": "Event Details (External)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/events/1?use_api=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "events", "1"],
+							"query": [
+								{
+									"key": "use_api",
+									"value": "true",
+									"description": "啟用外部 API 模式"
+								}
+							]
+						},
+						"description": "測試外部 API 模式的事件詳情"
+					},
+					"response": []
+				},
+				{
+					"name": "Vendor Applications (External)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/applications?use_api=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "applications"],
+							"query": [
+								{
+									"key": "use_api",
+									"value": "true",
+									"description": "啟用外部 API 模式"
+								}
+							]
+						},
+						"description": "測試外部 API 模式的 vendor 申請列表"
+					},
+					"response": []
+				},
+				{
+					"name": "Vendor Bookings (External)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/bookings?use_api=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "bookings"],
+							"query": [
+								{
+									"key": "use_api",
+									"value": "true",
+									"description": "啟用外部 API 模式"
+								}
+							]
+						},
+						"description": "測試外部 API 模式的 vendor 預訂列表"
+					},
+					"response": []
+				}
+			],
+			"description": "測試外部 API 模式（模擬其他模組調用）"
+		},
+		{
+			"name": "3. Direct API Endpoints",
+			"item": [
+				{
+					"name": "Events API - Accepting Applications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/vendor/events/accepting-applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "vendor", "events", "accepting-applications"]
+						},
+						"description": "直接調用 API 端點 - 接受申請的事件"
+					},
+					"response": []
+				},
+				{
+					"name": "Event Details API",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/vendor/events/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "vendor", "events", "1"]
+						},
+						"description": "直接調用 API 端點 - 事件詳情"
+					},
+					"response": []
+				},
+				{
+					"name": "Vendor Info API",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/vendors/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "vendors", "1"]
+						},
+						"description": "直接調用 API 端點 - vendor 信息"
+					},
+					"response": []
+				},
+				{
+					"name": "Vendor Status API",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/vendors/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "vendors", "1", "status"]
+						},
+						"description": "直接調用 API 端點 - vendor 狀態"
+					},
+					"response": []
+				},
+				{
+					"name": "Vendor Applications API (Auth Required)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/vendor/applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "vendor", "applications"]
+						},
+						"description": "需要認證的 vendor 申請 API"
+					},
+					"response": []
+				},
+				{
+					"name": "Vendor Bookings API (Auth Required)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/vendor/bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "vendor", "bookings"]
+						},
+						"description": "需要認證的 vendor 預訂 API"
+					},
+					"response": []
+				}
+			],
+			"description": "直接調用 API 端點"
+		},
+		{
+			"name": "4. Event API (CL)",
+			"item": [
+				{
+					"name": "All Events with Booths",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/vendor/events",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "vendor", "events"]
+						},
+						"description": "獲取所有有展位的活動"
+					},
+					"response": []
+				},
+				{
+					"name": "Events Accepting Applications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/vendor/events/accepting-applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "vendor", "events", "accepting-applications"]
+						},
+						"description": "獲取接受申請的活動"
+					},
+					"response": []
+				},
+				{
+					"name": "Event Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/vendor/events/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "vendor", "events", "1"]
+						},
+						"description": "獲取特定活動信息"
+					},
+					"response": []
+				},
+				{
+					"name": "Booth Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/vendor/events/1/booths",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "vendor", "events", "1", "booths"]
+						},
+						"description": "獲取特定活動的展位信息"
+					},
+					"response": []
+				}
+			],
+			"description": "Event API (CL) 端點測試"
+		},
+		{
+			"name": "5. Performance Tests",
+			"item": [
+				{
+					"name": "Dashboard Performance Test",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/dashboard",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "dashboard"]
+						},
+						"description": "測試 dashboard 性能（應該 < 1秒）"
+					},
+					"response": []
+				},
+				{
+					"name": "Internal vs External Speed Test",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/events",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "events"]
+						},
+						"description": "測試內部服務速度"
+					},
+					"response": []
+				},
+				{
+					"name": "External API Speed Test",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vendor/events?use_api=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["vendor", "events"],
+							"query": [
+								{
+									"key": "use_api",
+									"value": "true"
+								}
+							]
+						},
+						"description": "測試外部 API 速度"
+					},
+					"response": []
+				}
+			],
+			"description": "性能測試"
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "your_auth_token_here",
+			"type": "string"
+		}
+	]
+}

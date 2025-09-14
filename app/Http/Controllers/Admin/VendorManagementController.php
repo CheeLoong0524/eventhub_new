@@ -28,9 +28,6 @@ class VendorManagementController extends Controller
             $query->where('business_type', $request->business_type);
         }
 
-        if ($request->filled('search')) {
-            $query->where('business_name', 'like', '%' . $request->search . '%');
-        }
 
         $applications = $query->latest()->paginate(15);
 
@@ -157,9 +154,6 @@ class VendorManagementController extends Controller
             $query->where('is_verified', $request->is_verified === '1');
         }
 
-        if ($request->filled('search')) {
-            $query->where('business_name', 'like', '%' . $request->search . '%');
-        }
 
         $vendors = $query->latest()->paginate(15);
 

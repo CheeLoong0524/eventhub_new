@@ -91,10 +91,6 @@ class Vendor extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function boothBookings(): HasMany
-    {
-        return $this->hasMany(VendorBoothBooking::class);
-    }
 
     public function applications(): HasMany
     {

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.vendor')
 
 @section('title', 'Event Details - ' . $event->name)
 
@@ -48,45 +48,27 @@
                                     {{ $event->available_booths }}/{{ $event->booth_quantity }}
                                 </span>
                             </p>
-                            @if($event->ticket_quantity > 0)
-                                <p class="mb-1"><strong>Available Tickets:</strong> 
-                                    <span class="text-info">
-                                        {{ $event->available_tickets }}/{{ $event->ticket_quantity }}
-                                    </span>
-                                </p>
-                            @endif
                         </div>
                     </div>
 
-                    <!-- Pricing Information -->
+                    <!-- Booth Pricing Information -->
                     <div class="row mb-4">
-                        <div class="col-md-6">
+                        <div class="col-12">
                             <h6><i class="fas fa-dollar-sign me-2"></i>Booth Pricing</h6>
                             <div class="pricing-card bg-light p-3 rounded">
-                                <h5 class="text-primary mb-2">RM {{ number_format($event->booth_price ?? 0, 2) }}</h5>
-                                <p class="text-muted mb-0">Per booth rental</p>
-                                <small class="text-muted">
-                                    <i class="fas fa-hashtag me-1"></i>
-                                    {{ $event->booth_quantity }} booths available
-                                </small>
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <h5 class="text-primary mb-2">RM {{ number_format($event->booth_price ?? 0, 2) }}</h5>
+                                        <p class="text-muted mb-0">Per booth rental</p>
+                                    </div>
+                                    <div class="col-md-6 text-md-end">
+                                        <small class="text-muted">
+                                            <i class="fas fa-hashtag me-1"></i>
+                                            {{ $event->booth_quantity }} booths available
+                                        </small>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-ticket-alt me-2"></i>Ticket Pricing</h6>
-                            @if($event->ticket_price && $event->ticket_quantity > 0)
-                                <div class="pricing-card bg-light p-3 rounded">
-                                    <h5 class="text-info mb-2">RM {{ number_format($event->ticket_price, 2) }}</h5>
-                                    <p class="text-muted mb-0">Per ticket</p>
-                                    <small class="text-muted">
-                                        <i class="fas fa-hashtag me-1"></i>
-                                        {{ $event->ticket_quantity }} tickets available
-                                    </small>
-                                </div>
-                            @else
-                                <div class="pricing-card bg-light p-3 rounded">
-                                    <p class="text-muted mb-0">No tickets available</p>
-                                </div>
-                            @endif
                         </div>
                     </div>
 

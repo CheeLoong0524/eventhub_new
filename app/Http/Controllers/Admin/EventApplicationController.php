@@ -72,7 +72,6 @@ class EventApplicationController extends Controller
             
             $application->update($updateData);
 
-
             Log::info('Event application approved', [
                 'application_id' => $id,
                 'admin_id' => Auth::id(),

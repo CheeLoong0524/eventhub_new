@@ -83,6 +83,18 @@
                                 </div>
                             </div>
                         </div>
+                    @elseif($application->isCancelled())
+                        <div class="alert alert-secondary border-0 shadow-sm">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-ban fa-2x text-secondary"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="alert-heading mb-1">Application Cancelled</h6>
+                                    <p class="mb-0">This application has been cancelled. You can apply for other events or create a new application for this event.</p>
+                                </div>
+                            </div>
+                        </div>
                     @elseif($application->isUnderReview())
                         <div class="alert alert-info border-0 shadow-sm">
                             <div class="d-flex align-items-center">
@@ -393,6 +405,17 @@
                             <div class="timeline-content-enhanced">
                                 <h6 class="mb-1">Rejected</h6>
                                 <p class="small text-muted mb-0">{{ $application->rejected_at->format('M d, Y H:i') }}</p>
+                            </div>
+                        </div>
+                        @endif
+                        @if($application->isCancelled())
+                        <div class="timeline-item-enhanced">
+                            <div class="timeline-marker-enhanced bg-secondary">
+                                <i class="fas fa-ban text-white"></i>
+                            </div>
+                            <div class="timeline-content-enhanced">
+                                <h6 class="mb-1">Cancelled</h6>
+                                <p class="small text-muted mb-0">{{ $application->updated_at->format('M d, Y H:i') }}</p>
                             </div>
                         </div>
                         @endif

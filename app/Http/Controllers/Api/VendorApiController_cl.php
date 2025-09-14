@@ -172,7 +172,11 @@ class VendorApiController_cl extends Controller
                 ->where('status', 'active')
                 ->whereNotNull('booth_price')
                 ->where('booth_quantity', '>', 0)
-                ->whereRaw('booth_quantity > booth_sold'); // Has available booths
+                ->whereRaw('booth_quantity > booth_sold') // Has available booths
+                ->where(function($q) {
+                    $q->where('start_time', '>', now())  // 只顯示未來的事件
+                      ->orWhereNull('start_time');
+                });
             
             $events = $query->paginate($request->get('per_page', 15));
             

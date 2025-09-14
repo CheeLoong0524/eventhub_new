@@ -49,7 +49,6 @@ Route::prefix('v1')->group(function () {
     // Vendor information API
     Route::get('/vendors/{id}', [VendorApiController::class, 'getVendorInfo']);
     Route::get('/vendors/{id}/status', [VendorApiController::class, 'getVendorStatus']);
-    Route::get('/vendors/search', [VendorApiController::class, 'searchVendors']);
     
     // Event application API
     Route::get('/events/{eventId}/applications', [VendorApiController::class, 'getEventApplications']);
@@ -81,12 +80,10 @@ Route::prefix('v1/ticketing')->group(function () {
 // Vendor Module API routes
 Route::prefix('v1/vendor')->group(function () {
     // Get event and booth information
+    Route::get('/events', [VendorApiController_cl::class, 'getAllEventsWithBooths']); //time format (date + time)
+    Route::get('/events/accepting-applications', [VendorApiController_cl::class, 'getEventsAcceptingApplications']); 
     Route::get('/events/{event}', [VendorApiController_cl::class, 'getEventInfo']);
     Route::get('/events/{event}/booths', [VendorApiController_cl::class, 'getBoothInfo']);
-    Route::get('/events', [VendorApiController_cl::class, 'getAllEventsWithBooths']); //time format (date + time)
-    
-    //not working - considering to dlt 
-    Route::get('/events/accepting-applications', [VendorApiController_cl::class, 'getEventsAcceptingApplications']); 
     
     // Update booth quantities (requires authentication)
     Route::middleware('auth:sanctum')->group(function () {
@@ -112,6 +109,7 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::prefix('vendor')->group(function () {
         Route::get('/profile', [VendorApiController::class, 'getProfile']);
         Route::put('/profile', [VendorApiController::class, 'updateProfile']);
+        Route::get('/business-info/{id}', [VendorApiController::class, 'getBusinessInfo']);
         Route::get('/applications', [VendorApiController::class, 'getMyApplications']);
         Route::get('/bookings', [VendorApiController::class, 'getMyBookings']);
     });

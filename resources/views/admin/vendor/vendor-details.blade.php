@@ -30,22 +30,16 @@
                             <h6 class="text-primary mb-3">Business Details</h6>
                             <p><strong>Business Name:</strong> {{ $vendor->business_name }}</p>
                             <p><strong>Business Type:</strong> {{ ucfirst(str_replace('_', ' ', $vendor->business_type)) }}</p>
-                            <p><strong>Business Email:</strong> {{ $vendor->business_email }}</p>
-                            <p><strong>Business Phone:</strong> {{ $vendor->business_phone }}</p>
                             <p><strong>Years in Business:</strong> {{ $vendor->years_in_business }}</p>
+                            <p><strong>Business Size:</strong> {{ ucfirst(str_replace('_', ' ', $vendor->business_size)) }}</p>
+                            <p><strong>Annual Revenue:</strong> {{ ucfirst(str_replace('_', ' ', $vendor->annual_revenue)) }}</p>
                         </div>
                         <div class="col-md-6">
                             <h6 class="text-primary mb-3">Contact Information</h6>
-                            <p><strong>Contact Person:</strong> {{ $vendor->contact_person }}</p>
-                            <p><strong>Contact Email:</strong> {{ $vendor->contact_email }}</p>
-                            <p><strong>Contact Phone:</strong> {{ $vendor->contact_phone }}</p>
-                            <p><strong>Website:</strong> 
-                                @if($vendor->website)
-                                    <a href="{{ $vendor->website }}" target="_blank">{{ $vendor->website }}</a>
-                                @else
-                                    <span class="text-muted">Not provided</span>
-                                @endif
-                            </p>
+                            <p><strong>Contact Person:</strong> {{ $vendor->user->name ?? 'Not provided' }}</p>
+                            <p><strong>Business Email:</strong> {{ $vendor->business_email ?? 'Not provided' }}</p>
+                            <p><strong>Business Phone:</strong> {{ $vendor->business_phone ?? 'Not provided' }}</p>
+                            <p><strong>Event Experience:</strong> {{ ucfirst(str_replace('_', ' ', $vendor->event_experience)) }}</p>
                         </div>
                     </div>
                     
@@ -57,6 +51,25 @@
                         </div>
                     </div>
                     @endif
+
+                    <!-- Additional Business Information -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Product & Target Information</h6>
+                            <p><strong>Product Category:</strong> {{ ucfirst(str_replace('_', ' ', $vendor->product_category)) }}</p>
+                            <p><strong>Target Audience:</strong> {{ ucfirst(str_replace('_', ' ', $vendor->target_audience)) }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Marketing Strategy</h6>
+                            @if($vendor->marketing_strategy)
+                                <div class="bg-light p-3 rounded">
+                                    {{ $vendor->marketing_strategy }}
+                                </div>
+                            @else
+                                <p class="text-muted">No marketing strategy provided</p>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
 

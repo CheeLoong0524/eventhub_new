@@ -30,7 +30,7 @@ class UpdatePaidApplications extends Command
         $this->info('Updating paid applications with payment breakdown...');
         
         $paidApplications = VendorEventApplication::where('status', 'paid')
-            ->whereNull('final_amount')
+            ->whereNull('approved_price')
             ->with('event')
             ->get();
         
@@ -47,12 +47,9 @@ class UpdatePaidApplications extends Command
             $finalAmount = round($payment->getAmount(), 2);
             $paymentBreakdown = $payment->getBreakdown();
             
-            // Update the application with payment breakdown
+            // Update the application with final amount
             $application->update([
-                'base_amount' => $baseAmount,
-                'tax_amount' => $paymentBreakdown['tax'] ?? 0,
-                'service_charge_amount' => $paymentBreakdown['service_charge'] ?? 0,
-                'final_amount' => $finalAmount,
+                'approved_price' => $finalAmount,
             ]);
             
             $updated++;

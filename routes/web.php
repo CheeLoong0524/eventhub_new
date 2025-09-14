@@ -63,10 +63,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 });
 
-// Test search route (temporary)
-Route::get('/test-search-route', function() {
-    return response()->json(['message' => 'Test search route works!']);
-});
 
 // Test basic route
 Route::get('/test-basic', function() {
@@ -160,10 +156,6 @@ Route::middleware('auth')->group(function () {
             return response()->json($users);
         })->name('debug.users');
         
-        // Test search route
-        Route::get('/test-search', function() {
-            return 'Search route is working!';
-        })->name('test.search');
     });
     
     // Vendor routes

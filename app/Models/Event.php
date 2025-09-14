@@ -222,7 +222,7 @@ class Event extends Model
         // Calculate actual revenue from paid applications (including tax and service charge)
         return VendorEventApplication::where('event_id', $this->id)
             ->where('status', 'paid')
-            ->sum('final_amount');
+            ->sum('approved_price');
     }
 
     public function calculateTicketRevenue()
