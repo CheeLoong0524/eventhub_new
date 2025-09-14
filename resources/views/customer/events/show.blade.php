@@ -89,33 +89,22 @@
                             <span class="badge bg-light text-dark">{{ $ticketInfo['ticket_quantity'] }} Total</span>
                         </div>
                         
-                        <!-- Progress Bar -->
-                        <div class="progress mb-3" style="height: 8px;">
-                            @php
-                                $soldPercentage = $ticketInfo['ticket_quantity'] > 0 ? ($ticketInfo['ticket_sold'] / $ticketInfo['ticket_quantity']) * 100 : 0;
-                                $availablePercentage = 100 - $soldPercentage;
-                            @endphp
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $soldPercentage }}%" 
-                                 title="Sold: {{ $ticketInfo['ticket_sold'] }} tickets"></div>
-                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $availablePercentage }}%" 
-                                 title="Available: {{ $ticketInfo['available_tickets'] }} tickets"></div>
-                        </div>
                         
                         <!-- Statistics Cards -->
                         <div class="row g-2">
                             <div class="col-6">
                                 <div class="card bg-success text-white h-100">
                                     <div class="card-body text-center p-2">
-                                        <div class="h6 text-white mb-1">{{ $ticketInfo['available_tickets'] }}</div>
-                                        <small class="text-white fw-bold">Available</small>
+                                        <div class="h2 text-white mb-1 fw-bold">{{ $ticketInfo['ticket_quantity'] }}</div>
+                                        <div class="small text-white fw-bold">Tickets Available</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="card bg-warning text-white h-100">
+                                <div class="card bg-secondary text-white h-100">
                                     <div class="card-body text-center p-2">
-                                        <div class="h6 text-white mb-1">{{ $ticketInfo['ticket_sold'] }}</div>
-                                        <small class="text-white fw-bold">Sold</small>
+                                        <div class="h2 text-white mb-1 fw-bold">{{ $ticketInfo['ticket_sold'] }}</div>
+                                        <div class="small text-white fw-bold">Sold</div>
                                     </div>
                                 </div>
                             </div>
@@ -128,7 +117,7 @@
                         $isEventPassed = $eventDate && $eventDate->isPast();
                     @endphp
                     
-                    @if(isset($ticketInfo) && $ticketInfo['available_tickets'] > 0 && !$isEventPassed)
+                    @if(isset($ticketInfo) && $ticketInfo['ticket_quantity'] > 0 && !$isEventPassed)
                         <form id="addToCartForm">
                             @csrf
                             <input type="hidden" name="event_id" value="{{ $event->id }}">
@@ -136,7 +125,7 @@
                             <!-- Maximum Ticket Limit Message -->
                             <div class="alert alert-info alert-sm py-2 mb-3">
                                 <i class="fas fa-info-circle me-1"></i>
-                                <small>Maximum 5 tickets per order</small>
+                                <small>Maximum {{ min(5, $ticketInfo['ticket_quantity']) }} tickets per order ({{ $ticketInfo['ticket_quantity'] }} available)</small>
                             </div>
                             
                             <div class="mb-3">
@@ -151,7 +140,7 @@
                                            class="form-control form-control-sm text-center" 
                                            value="1" 
                                            min="1" 
-                                           max="{{ min(5, $ticketInfo['available_tickets']) }}" 
+                                           max="{{ min(5, $ticketInfo['ticket_quantity']) }}" 
                                            required>
                                     <button class="btn btn-outline-secondary btn-sm" type="button" id="increaseBtn">
                                         <i class="fas fa-plus"></i>
@@ -252,8 +241,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Show success message
                     showAlert('success', data.message);
                     
-                    // Update available tickets display
-                    updateAvailableTickets(data.cart.total_items);
+                    // Update sold tickets display
+                    updateAvailableTickets(data.cart || { 
+                        total_items: 0, 
+                        ticket_sold: data.ticket_sold,
+                        total_tickets: data.total_tickets || {{ $ticketInfo['ticket_quantity'] }}
+                    });
                 } else {
                     showAlert('error', data.error || 'Failed to add item to cart');
                 }
@@ -297,12 +290,25 @@ function showAlert(type, message) {
     }, 5000);
 }
 
-function updateAvailableTickets(totalItems) {
+function updateAvailableTickets(cartData) {
     // Update cart count in navigation if it exists
     const cartCount = document.querySelector('.cart-count');
     if (cartCount) {
-        cartCount.textContent = totalItems;
+        cartCount.textContent = cartData.total_items || 0;
     }
+    
+    // Update sold tickets display if we have the updated count
+    if (cartData.ticket_sold !== undefined) {
+        const soldTicketsElement = document.querySelector('.card.bg-secondary .h2');
+        if (soldTicketsElement) {
+            soldTicketsElement.textContent = cartData.ticket_sold;
+        }
+        
+        // Progress bar removed - no need to update
+    }
+    
+    // Note: Available tickets always equals total ticket quantity
+    // No need to update available tickets display or cart validation
 }
 </script>
 @endsection

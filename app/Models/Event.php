@@ -205,7 +205,7 @@ class Event extends Model
 
     public function getAvailableTicketsAttribute()
     {
-        return $this->ticket_quantity - $this->ticket_sold;
+        return $this->ticket_quantity;
     }
 
     public function calculateTotalCosts()

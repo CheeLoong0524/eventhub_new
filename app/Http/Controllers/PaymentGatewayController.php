@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\EventOrderYf;
 use App\Models\EventPaymentYf;
 use App\Services\PaymentService;
+use App\Services\PaymentStrategyFactory;
 use App\Services\ReceiptService;
 use App\Services\EventService;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -18,13 +20,11 @@ class PaymentGatewayController extends Controller
 {
     protected $paymentService;
     protected $receiptService;
-    protected $eventService;
 
-    public function __construct(PaymentService $paymentService, ReceiptService $receiptService, EventService $eventService)
+    public function __construct(PaymentService $paymentService, ReceiptService $receiptService)
     {
         $this->paymentService = $paymentService;
         $this->receiptService = $receiptService;
-        $this->eventService = $eventService;
     }
 
     /**
@@ -177,30 +177,40 @@ class PaymentGatewayController extends Controller
     }
 
     /**
-     * Simulate gateway processing
+     * Simulate gateway processing using Strategy Pattern
      */
     private function simulateGatewayProcessing(string $paymentMethod, Request $request, EventOrderYf $order): array
     {
         Log::info("Simulating {$paymentMethod} gateway processing for order: " . $order->order_number);
 
-        // Simulate processing delay
-        usleep(500000); // 0.5 seconds
-
-        switch ($paymentMethod) {
-            case 'stripe':
-                return $this->simulateStripeProcessing($request, $order);
+        try {
+            // Use Strategy Pattern
+            $strategy = PaymentStrategyFactory::create($paymentMethod);
+            $result = $strategy->processPayment([$order], $request);
             
-            case 'tng_ewallet':
-                return $this->simulateTngEwalletProcessing($request, $order);
+            Log::info("Strategy gateway processing completed", [
+                'payment_method' => $paymentMethod,
+                'order_number' => $order->order_number,
+                'success' => $result->success,
+                'message' => $result->message
+            ]);
             
-            case 'bank_transfer':
-                return $this->simulateBankTransferProcessing($request, $order);
+            return [
+                'success' => $result->success,
+                'message' => $result->message
+            ];
             
-            default:
-                return [
-                    'success' => false,
-                    'message' => 'Unsupported payment method'
-                ];
+        } catch (\Exception $e) {
+            Log::error("Gateway processing failed: " . $e->getMessage(), [
+                'payment_method' => $paymentMethod,
+                'order_number' => $order->order_number,
+                'error' => $e->getMessage()
+            ]);
+            
+            return [
+                'success' => false,
+                'message' => 'Payment processing failed: ' . $e->getMessage()
+            ];
         }
     }
 
@@ -382,7 +392,7 @@ class PaymentGatewayController extends Controller
             }
             
             // Update ticket availability
-            $this->updateTicketAvailability($order);
+            $this->updateTicketAvailability($order, $request);
             
             // Generate receipt data (no PDF generation)
             try {
@@ -418,7 +428,7 @@ class PaymentGatewayController extends Controller
     /**
      * Update ticket availability after successful payment
      */
-    private function updateTicketAvailability(EventOrderYf $order): void
+    private function updateTicketAvailability(EventOrderYf $order, Request $request = null): void
     {
         Log::info("Starting ticket availability update for order: {$order->order_number}");
         
@@ -449,22 +459,45 @@ class PaymentGatewayController extends Controller
                 return;
             }
         
-            // Update event ticket quantities using EventService
+            // Update event ticket quantities
             $event = \App\Models\Event::find($freshOrder->event_id);
             if ($event) {
                 $totalQuantity = array_sum(array_column($freshOrder->ticket_details, 'quantity'));
                 
                 Log::info("Before update - Event {$event->id} ({$event->name}): available={$event->available_tickets}, sold={$event->ticket_sold}");
                 
+                // Check if we should use API or internal service
+                $useApi = $request ? $request->query('use_api', false) : false;
+                
                 try {
-                    // Use EventService to update ticket quantities
-                    $result = $this->eventService->updateTicketQuantity($event->id, $totalQuantity);
-                    Log::info("EventService update result: " . json_encode($result));
+                    if ($useApi) {
+                        // External API consumption (simulate another module)
+                        Log::info("Using API to update ticket quantity for event {$event->id}");
+                        $response = Http::timeout(10)->patch(url("/api/v1/ticketing/events/{$event->id}/tickets/quantity"), [
+                            'quantity' => $totalQuantity,
+                            'operation' => 'subtract'
+                        ]);
+                        
+                        if ($response->failed()) {
+                            throw new \Exception('Failed to update ticket quantity via API: ' . $response->body());
+                        }
+                        
+                        $result = $response->json();
+                        Log::info("API ticket update result: " . json_encode($result));
+                        
+                    } else {
+                        // Internal service consumption
+                        Log::info("Using internal service to update ticket quantity for event {$event->id}");
+                        $eventService = new EventService();
+                        $result = $eventService->updateTicketQuantity($event->id, $totalQuantity);
+                        Log::info("Internal service ticket update result: " . json_encode($result));
+                    }
                     
                     $event->refresh();
                     Log::info("After update - Event {$event->id} ({$event->name}): available={$event->available_tickets}, sold={$event->ticket_sold}");
+                    
                 } catch (\Exception $e) {
-                    Log::error("Failed to update ticket availability via EventService for event {$event->id}: " . $e->getMessage());
+                    Log::error("Failed to update ticket availability for event {$event->id}: " . $e->getMessage());
                     throw new \Exception("Failed to update ticket availability: " . $e->getMessage());
                 }
             } else {

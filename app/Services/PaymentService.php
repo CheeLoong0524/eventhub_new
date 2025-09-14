@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\EventOrderYf;
+use App\Services\PaymentStrategyFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -17,18 +18,40 @@ class PaymentService
         
         Log::info("Processing payment with method: " . $paymentMethod);
         
-        // For now, we'll redirect to the payment gateway
-        // In a real implementation, this would integrate with actual payment providers
-        $redirectUrl = route('payment-gateway.show', [
-            'payment_method' => $paymentMethod,
-            'order_number' => $orders[0]->order_number
-        ]);
-        
-        return (object) [
-            'success' => true,
-            'message' => 'Redirecting to payment gateway...',
-            'redirectUrl' => $redirectUrl
-        ];
+        try {
+            // Use Strategy Pattern
+            $strategy = PaymentStrategyFactory::create($paymentMethod);
+            $result = $strategy->processPayment($orders, $request);
+            
+            Log::info("Strategy processing completed", [
+                'payment_method' => $paymentMethod,
+                'success' => $result->success,
+                'message' => $result->message
+            ]);
+            
+            return (object) [
+                'success' => $result->success,
+                'message' => $result->message,
+                'redirectUrl' => $result->redirectUrl,
+                'transactionId' => $result->transactionId,
+                'metadata' => $result->metadata
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error("Payment processing failed: " . $e->getMessage(), [
+                'payment_method' => $paymentMethod,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return (object) [
+                'success' => false,
+                'message' => 'Payment processing failed: ' . $e->getMessage(),
+                'redirectUrl' => null,
+                'transactionId' => null,
+                'metadata' => ['error' => $e->getMessage()]
+            ];
+        }
     }
 
     /**
@@ -36,10 +59,6 @@ class PaymentService
      */
     public function getAvailablePaymentMethods(): array
     {
-        return [
-            'stripe' => 'Credit/Debit Card',
-            'tng_ewallet' => 'TNG eWallet',
-            'bank_transfer' => 'Bank Transfer'
-        ];
+        return PaymentStrategyFactory::getAvailableMethods();
     }
 }
