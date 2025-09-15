@@ -270,14 +270,6 @@ class PaymentGatewayController extends Controller
                 ];
             }
 
-            // Simulate random failure (5% chance)
-            if (rand(1, 100) <= 5) {
-                Log::error("Stripe processing failed - Random bank decline");
-                return [
-                    'success' => false,
-                    'message' => 'Payment declined by bank. Please try a different card or contact your bank.'
-                ];
-            }
 
             Log::info("Stripe processing successful for order: " . $order->order_number);
             return [
@@ -321,13 +313,6 @@ class PaymentGatewayController extends Controller
             ];
         }
 
-        // Simulate random failure (2% chance)
-        if (rand(1, 100) <= 2) {
-            return [
-                'success' => false,
-                'message' => 'TNG eWallet payment failed. Please check your balance or try again.'
-            ];
-        }
 
         return [
             'success' => true,
@@ -352,13 +337,6 @@ class PaymentGatewayController extends Controller
             ];
         }
 
-        // Simulate random failure (2% chance)
-        if (rand(1, 100) <= 2) {
-            return [
-                'success' => false,
-                'message' => 'Bank transfer verification failed. Please check your account details.'
-            ];
-        }
 
         return [
             'success' => true,
