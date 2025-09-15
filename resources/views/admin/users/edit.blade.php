@@ -1,5 +1,8 @@
 @extends('layouts.admin')
-
+/** Author: Tan Chim Yang 
+ * RSW2S3G4
+ * 23WMR14610 
+ * **/
 @section('title', 'Edit User - EventHub')
 @section('page-title', 'Edit User')
 @section('page-description', 'Update user information and settings')
