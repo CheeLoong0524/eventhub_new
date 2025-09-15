@@ -77,7 +77,7 @@
                         <h6 class="text-success">General Admission</h6>
                         <p class="text-muted mb-2">Standard event ticket</p>
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="h4 text-success mb-0">RM {{ number_format($ticketInfo['ticket_price'], 2) }}</span>
+                            <span class="h4 text-success mb-0">RM {{ $ticketInfo ? number_format($ticketInfo['ticket_price'], 2) : '0.00' }}</span>
                             <span class="badge bg-success">Available</span>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-muted small">Ticket Availability</span>
-                            <span class="badge bg-light text-dark">{{ $ticketInfo['ticket_quantity'] }} Total</span>
+                            <span class="badge bg-light text-dark">{{ $ticketInfo ? $ticketInfo['ticket_quantity'] : 0 }} Total</span>
                         </div>
                         
                         
@@ -95,7 +95,7 @@
                             <div class="col-6">
                                 <div class="card bg-success text-white h-100">
                                     <div class="card-body text-center p-2">
-                                        <div class="h2 text-white mb-1 fw-bold">{{ $ticketInfo['ticket_quantity'] }}</div>
+                                        <div class="h2 text-white mb-1 fw-bold">{{ $ticketInfo ? $ticketInfo['ticket_quantity'] : 0 }}</div>
                                         <div class="small text-white fw-bold">Tickets Available</div>
                                     </div>
                                 </div>
@@ -103,7 +103,7 @@
                             <div class="col-6">
                                 <div class="card bg-secondary text-white h-100">
                                     <div class="card-body text-center p-2">
-                                        <div class="h2 text-white mb-1 fw-bold">{{ $ticketInfo['ticket_sold'] }}</div>
+                                        <div class="h2 text-white mb-1 fw-bold">{{ $ticketInfo ? $ticketInfo['ticket_sold'] : 0 }}</div>
                                         <div class="small text-white fw-bold">Sold</div>
                                     </div>
                                 </div>
@@ -117,7 +117,7 @@
                         $isEventPassed = $eventDate && $eventDate->isPast();
                     @endphp
                     
-                    @if(isset($ticketInfo) && $ticketInfo['ticket_quantity'] > 0 && !$isEventPassed)
+                    @if(isset($ticketInfo) && $ticketInfo && $ticketInfo['ticket_quantity'] > 0 && !$isEventPassed)
                         <form id="addToCartForm">
                             @csrf
                             <input type="hidden" name="event_id" value="{{ $event->id }}">
@@ -125,7 +125,7 @@
                             <!-- Maximum Ticket Limit Message -->
                             <div class="alert alert-info alert-sm py-2 mb-3">
                                 <i class="fas fa-info-circle me-1"></i>
-                                <small>Maximum {{ min(5, $ticketInfo['ticket_quantity']) }} tickets per order ({{ $ticketInfo['ticket_quantity'] }} available)</small>
+                                <small>Maximum {{ $ticketInfo ? min(5, $ticketInfo['ticket_quantity']) : 0 }} tickets per order ({{ $ticketInfo ? $ticketInfo['ticket_quantity'] : 0 }} available)</small>
                             </div>
                             
                             <div class="mb-3">
@@ -140,14 +140,14 @@
                                            class="form-control form-control-sm text-center" 
                                            value="1" 
                                            min="1" 
-                                           max="{{ min(5, $ticketInfo['ticket_quantity']) }}" 
+                                           max="{{ $ticketInfo ? min(5, $ticketInfo['ticket_quantity']) : 0 }}" 
                                            required>
                                     <button class="btn btn-outline-secondary btn-sm" type="button" id="increaseBtn">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
                                 <div class="form-text small text-muted">
-                                    Available: {{ $ticketInfo['available_tickets'] }} tickets
+                                    Available: {{ $ticketInfo ? $ticketInfo['available_tickets'] : 0 }} tickets
                                 </div>
                             </div>
                             
@@ -168,6 +168,20 @@
                             This event is sold out.
                         </div>
                     @endif
+                </div>
+            </div>
+            @else
+            <!-- No tickets available -->
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Ticket Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Sold Out</strong><br>
+                        This event is sold out.
+                    </div>
                 </div>
             </div>
             @endif
@@ -245,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateAvailableTickets(data.cart || { 
                         total_items: 0, 
                         ticket_sold: data.ticket_sold,
-                        total_tickets: data.total_tickets || {{ $ticketInfo['ticket_quantity'] }}
+                        total_tickets: data.total_tickets || {{ $ticketInfo ? $ticketInfo['ticket_quantity'] : 0 }}
                     });
                 } else {
                     showAlert('error', data.error || 'Failed to add item to cart');
