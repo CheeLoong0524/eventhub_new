@@ -1,8 +1,5 @@
 @extends('layouts.admin')
-/** Author: Tan Chim Yang 
- * RSW2S3G4
- * 23WMR14610 
- * **/
+
 @section('title', 'Admin Dashboard - EventHub')
 
 @section('styles')

@@ -1,8 +1,5 @@
 @extends('layouts.app')
-/** Author: Tan Chim Yang 
- * RSW2S3G4
- * 23WMR14610 
- * **/
+
 @section('title', 'Profile - EventHub')
 
 @section('styles')

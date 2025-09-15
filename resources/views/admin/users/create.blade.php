@@ -1,8 +1,5 @@
 @extends('layouts.admin')
-/** Author: Tan Chim Yang 
- * RSW2S3G4
- * 23WMR14610 
- * **/
+
 @section('title', 'Create User - EventHub')
 @section('page-title', 'Create New User')
 @section('page-description', 'Create a new admin user')
