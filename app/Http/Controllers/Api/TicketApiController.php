@@ -1,4 +1,5 @@
 <?php
+// Author: Gooi Ye Fan
 
 namespace App\Http\Controllers\Api;
 
@@ -56,11 +57,12 @@ class TicketApiController extends Controller
 
                 if ($operation === 'subtract') {
                     // Check if we have enough tickets to subtract
-                    if ($event->ticket_sold + $quantity > $event->ticket_quantity) {
-                        throw new \Exception('Insufficient tickets available. Available: ' . $event->available_tickets);
+                    if ($quantity > $event->ticket_quantity) {
+                        throw new \Exception('Insufficient tickets available. Available: ' . $event->ticket_quantity);
                     }
                     
-                    // Subtract sold tickets (increase available tickets)
+                    // Subtract from available tickets (decrease ticket_quantity)
+                    $event->ticket_quantity -= $quantity;
                     $event->ticket_sold += $quantity;
                     
                 } else { // add operation
@@ -69,7 +71,8 @@ class TicketApiController extends Controller
                         throw new \Exception('Cannot reduce sold tickets below zero');
                     }
                     
-                    // Add back to available tickets (decrease sold tickets)
+                    // Add back to available tickets (increase ticket_quantity, decrease sold)
+                    $event->ticket_quantity += $quantity;
                     $event->ticket_sold -= $quantity;
                 }
 

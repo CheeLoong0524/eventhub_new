@@ -127,6 +127,16 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // OWASP SCP #114: Centralized Security Logging Channel
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => 365, // Retain security logs for 1 year
+            'replace_placeholders' => true,
+            'permission' => 0600, // Restrict access to owner only
+        ],
+
     ],
 
 ];

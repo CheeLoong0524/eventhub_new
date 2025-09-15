@@ -1,5 +1,5 @@
 <?php
-
+// Author: Gooi Ye Fan
 namespace App\Http\Controllers;
 
 use App\Models\EventOrderYf;
@@ -32,9 +32,17 @@ class PaymentGatewayController extends Controller
      */
     public function showGateway(Request $request): View|RedirectResponse
     {
-        // OWASP SCP #23: Require authentication for all pages and resources
         if (!Auth::check()) {
-            Log::warning("Unauthorized access attempt to payment gateway - no authentication");
+            // OWASP SCP #114: Enhanced security event context logging
+            Log::channel('security')->warning("Unauthorized access attempt to payment gateway - no authentication", [
+                'event_type' => 'authentication_bypass_attempt',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'requested_url' => $request->fullUrl(),
+                'timestamp' => now()->toISOString(),
+                'session_id' => session()->getId(),
+                'request_id' => uniqid('req_', true)
+            ]);
             return redirect()->route('login')->with('error', 'Please login to access payment gateway.');
         }
 
@@ -47,17 +55,47 @@ class PaymentGatewayController extends Controller
 
         $order = EventOrderYf::where('order_number', $orderNumber)->first();
         if (!$order) {
-            Log::warning("Order not found: {$orderNumber} by user: " . Auth::id());
+            // OWASP SCP #114: Enhanced security event context logging
+            Log::channel('security')->warning("Order not found", [
+                'event_type' => 'order_not_found',
+                'user_id' => Auth::id(),
+                'order_number' => $orderNumber,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toISOString(),
+                'session_id' => session()->getId(),
+                'request_id' => uniqid('req_', true)
+            ]);
             return redirect()->route('cart.index')->with('error', 'Order not found.');
         }
 
-        // OWASP SCP #23: Verify order ownership to prevent unauthorized access
         if ($order->user_id !== Auth::id()) {
-            Log::warning("Unauthorized access attempt to order: {$orderNumber} by user: " . Auth::id() . " (order belongs to user: {$order->user_id})");
+            // OWASP SCP #114: Enhanced security event context logging
+            Log::channel('security')->warning("Unauthorized access attempt to order", [
+                'event_type' => 'order_hijacking_attempt',
+                'attacking_user_id' => Auth::id(),
+                'order_owner_id' => $order->user_id,
+                'order_number' => $orderNumber,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toISOString(),
+                'session_id' => session()->getId(),
+                'request_id' => uniqid('req_', true)
+            ]);
             return redirect()->route('cart.index')->with('error', 'You are not authorized to access this order.');
         }
 
-        Log::info("Payment gateway access granted for order: {$orderNumber} by user: " . Auth::id());
+        // OWASP SCP #114: Log successful authorization
+        Log::channel('security')->info("Payment gateway access granted", [
+            'event_type' => 'authorization_success',
+            'user_id' => Auth::id(),
+            'order_number' => $orderNumber,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'timestamp' => now()->toISOString(),
+            'session_id' => session()->getId(),
+            'request_id' => uniqid('req_', true)
+        ]);
         return view('payment-gateway.' . $paymentMethod, compact('order', 'paymentMethod'));
     }
 
@@ -66,13 +104,32 @@ class PaymentGatewayController extends Controller
      */
     public function processGateway(Request $request): RedirectResponse
     {
-        // OWASP SCP #23: Require authentication for all pages and resources
         if (!Auth::check()) {
-            Log::warning("Unauthorized payment processing attempt - no authentication");
+            // OWASP SCP #114: Enhanced security event context logging
+            Log::channel('security')->warning("Unauthorized payment processing attempt - no authentication", [
+                'event_type' => 'payment_processing_bypass_attempt',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'requested_url' => $request->fullUrl(),
+                'timestamp' => now()->toISOString(),
+                'session_id' => session()->getId(),
+                'request_id' => uniqid('req_', true)
+            ]);
             return redirect()->route('login')->with('error', 'Please login to process payments.');
         }
 
-        Log::info("Payment gateway processing started by user: " . Auth::id(), $request->all());
+        // OWASP SCP #114: Enhanced payment processing start logging
+        Log::channel('security')->info("Payment gateway processing started", [
+            'event_type' => 'payment_processing_start',
+            'user_id' => Auth::id(),
+            'payment_method' => $request->input('payment_method'),
+            'order_number' => $request->input('order_number'),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'timestamp' => now()->toISOString(),
+            'session_id' => session()->getId(),
+            'request_id' => uniqid('req_', true)
+        ]);
         
         try {
             $request->validate([
@@ -91,7 +148,6 @@ class PaymentGatewayController extends Controller
                 return redirect()->route('cart.index')->with('error', 'Order not found.');
             }
 
-            // OWASP SCP #23: Verify order ownership to prevent unauthorized payment processing
             if ($order->user_id !== Auth::id()) {
                 Log::warning("Unauthorized payment processing attempt for order: {$orderNumber} by user: " . Auth::id() . " (order belongs to user: {$order->user_id})");
                 return redirect()->route('cart.index')->with('error', 'You are not authorized to process this payment.');
@@ -124,11 +180,36 @@ class PaymentGatewayController extends Controller
             // Mark order as paid and update ticket availability
             $this->completePayment($order, $request);
             
-            Log::info("Redirecting to payment success for order: " . $orderNumber);
+            // OWASP SCP #114: Enhanced payment success logging
+            Log::channel('security')->info("Payment processed successfully", [
+                'event_type' => 'payment_success',
+                'user_id' => Auth::id(),
+                'order_number' => $orderNumber,
+                'payment_method' => $paymentMethod,
+                'amount' => $order->total_amount ?? 'unknown',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toISOString(),
+                'session_id' => session()->getId(),
+                'request_id' => uniqid('req_', true)
+            ]);
+            
             return redirect()->route('event-booking.payment-success-yf', ['order' => $orderNumber])
                 ->with('success', $result['message']);
         } else {
-            Log::error("Payment failed for order: " . $orderNumber . " - " . $result['message']);
+            // OWASP SCP #114: Enhanced payment failure logging
+            Log::channel('security')->error("Payment processing failed", [
+                'event_type' => 'payment_failure',
+                'user_id' => Auth::id(),
+                'order_number' => $orderNumber,
+                'payment_method' => $paymentMethod,
+                'failure_reason' => $result['message'],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toISOString(),
+                'session_id' => session()->getId(),
+                'request_id' => uniqid('req_', true)
+            ]);
             return redirect()->back()->with('error', $result['message']);
         }
     }

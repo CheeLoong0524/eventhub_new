@@ -39,13 +39,13 @@ class EventService
             }
 
             // Check if we have enough tickets to deduct
-            if ($event->ticket_sold + $quantityToDeduct > $event->ticket_quantity) {
-                throw new \Exception('Insufficient tickets available. Available: ' . $event->available_tickets);
+            if ($quantityToDeduct > $event->ticket_quantity) {
+                throw new \Exception('Insufficient tickets available. Available: ' . $event->ticket_quantity);
             }
             
-            // Deduct from available tickets (add to sold tickets)
-            $event->ticket_sold += $quantityToDeduct;
+            // Deduct from available tickets (decrease ticket_quantity, increase sold)
             $event->ticket_quantity -= $quantityToDeduct;
+            $event->ticket_sold += $quantityToDeduct;
             $event->save();
             
             // Update financials
@@ -58,7 +58,7 @@ class EventService
                     'event_id' => $event->id,
                     'ticket_quantity' => $event->ticket_quantity,
                     'ticket_sold' => $event->ticket_sold,
-                    'available_tickets' => $event->available_tickets
+                    'available_tickets' => $event->ticket_quantity
                 ]
             ];
         });
