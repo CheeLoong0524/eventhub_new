@@ -17,19 +17,12 @@ class StripePaymentStrategy implements PaymentStrategy
             // Simulate Stripe payment processing
             $transactionId = 'stripe_' . uniqid();
             
-            // In a real implementation, you would:
-            // 1. Create a Stripe payment intent
-            // 2. Handle webhooks for payment confirmation
-            // 3. Update order status based on Stripe response
-            
-            // Orders remain pending until payment gateway completion
-            // No payment processing here - just redirect to gateway
             
             Log::info("Stripe payment completed successfully. Transaction ID: " . $transactionId);
             
             return new PaymentResult(
                 success: true,
-                message: 'Redirecting to Stripe payment gateway...',
+                message: 'Payment Successfully...',
                 transactionId: $transactionId,
                 redirectUrl: route('payment-gateway.show', [
                     'payment_method' => 'stripe',

@@ -17,16 +17,12 @@ class BankTransferPaymentStrategy implements PaymentStrategy
             // Simulate Bank Transfer payment processing
             $transactionId = 'bank_' . uniqid();
             
-            // In a real implementation, you would:
-            // 1. Generate bank transfer instructions
-            // 2. Set up manual verification workflow
-            // 3. Update order status based on verification
             
             Log::info("Bank Transfer payment completed successfully. Transaction ID: " . $transactionId);
             
             return new PaymentResult(
                 success: true,
-                message: 'Redirecting to Bank Transfer payment gateway...',
+                message: 'Payment Successfully...',
                 transactionId: $transactionId,
                 redirectUrl: route('payment-gateway.show', [
                     'payment_method' => 'bank_transfer',

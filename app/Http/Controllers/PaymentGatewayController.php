@@ -32,6 +32,12 @@ class PaymentGatewayController extends Controller
      */
     public function showGateway(Request $request): View|RedirectResponse
     {
+        // OWASP SCP #23: Require authentication for all pages and resources
+        if (!Auth::check()) {
+            Log::warning("Unauthorized access attempt to payment gateway - no authentication");
+            return redirect()->route('login')->with('error', 'Please login to access payment gateway.');
+        }
+
         $paymentMethod = $request->input('payment_method');
         $orderNumber = $request->input('order_number');
         
@@ -41,9 +47,17 @@ class PaymentGatewayController extends Controller
 
         $order = EventOrderYf::where('order_number', $orderNumber)->first();
         if (!$order) {
+            Log::warning("Order not found: {$orderNumber} by user: " . Auth::id());
             return redirect()->route('cart.index')->with('error', 'Order not found.');
         }
 
+        // OWASP SCP #23: Verify order ownership to prevent unauthorized access
+        if ($order->user_id !== Auth::id()) {
+            Log::warning("Unauthorized access attempt to order: {$orderNumber} by user: " . Auth::id() . " (order belongs to user: {$order->user_id})");
+            return redirect()->route('cart.index')->with('error', 'You are not authorized to access this order.');
+        }
+
+        Log::info("Payment gateway access granted for order: {$orderNumber} by user: " . Auth::id());
         return view('payment-gateway.' . $paymentMethod, compact('order', 'paymentMethod'));
     }
 
@@ -52,7 +66,13 @@ class PaymentGatewayController extends Controller
      */
     public function processGateway(Request $request): RedirectResponse
     {
-        Log::info("Payment gateway processing started", $request->all());
+        // OWASP SCP #23: Require authentication for all pages and resources
+        if (!Auth::check()) {
+            Log::warning("Unauthorized payment processing attempt - no authentication");
+            return redirect()->route('login')->with('error', 'Please login to process payments.');
+        }
+
+        Log::info("Payment gateway processing started by user: " . Auth::id(), $request->all());
         
         try {
             $request->validate([
@@ -67,8 +87,14 @@ class PaymentGatewayController extends Controller
             
             $order = EventOrderYf::where('order_number', $orderNumber)->first();
             if (!$order) {
-                Log::error("Order not found: {$orderNumber}");
+                Log::error("Order not found: {$orderNumber} by user: " . Auth::id());
                 return redirect()->route('cart.index')->with('error', 'Order not found.');
+            }
+
+            // OWASP SCP #23: Verify order ownership to prevent unauthorized payment processing
+            if ($order->user_id !== Auth::id()) {
+                Log::warning("Unauthorized payment processing attempt for order: {$orderNumber} by user: " . Auth::id() . " (order belongs to user: {$order->user_id})");
+                return redirect()->route('cart.index')->with('error', 'You are not authorized to process this payment.');
             }
 
             // Validate payment method specific fields

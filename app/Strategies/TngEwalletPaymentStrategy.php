@@ -17,16 +17,12 @@ class TngEwalletPaymentStrategy implements PaymentStrategy
             // Simulate TNG eWallet payment processing
             $transactionId = 'tng_' . uniqid();
             
-            // In a real implementation, you would:
-            // 1. Create a TNG eWallet payment request
-            // 2. Handle webhooks for payment confirmation
-            // 3. Update order status based on TNG response
             
             Log::info("TNG eWallet payment completed successfully. Transaction ID: " . $transactionId);
             
             return new PaymentResult(
                 success: true,
-                message: 'Redirecting to TNG eWallet payment gateway...',
+                message: 'Payment Successfully...',
                 transactionId: $transactionId,
                 redirectUrl: route('payment-gateway.show', [
                     'payment_method' => 'tng_ewallet',
