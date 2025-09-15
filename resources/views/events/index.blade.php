@@ -5,6 +5,8 @@
 @section('page-description', 'Manage and view all your events')
 
 @section('content')
+<!-- Author: Lee Chee Loong -->
+
 <div class="container-fluid">
     <!-- Header Section -->
     <div class="row mb-4">

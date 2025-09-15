@@ -1,4 +1,6 @@
 <?php
+// Author: Lee Chee Loong
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;

@@ -5,6 +5,8 @@
 @section('page-description', 'Update the details for "' . $event->name . '"')
 
 @section('content')
+<!-- Author: Lee Chee Loong -->
+ 
 <div class="container-fluid">
     <!-- Form Section -->
     <div class="row">

@@ -1,5 +1,5 @@
 <?php
-// Author: Gooi Ye Fan
+// Author: Lee Chee Loong
 
 namespace App\Http\Controllers\Api;
 

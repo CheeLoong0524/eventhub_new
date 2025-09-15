@@ -5,6 +5,8 @@
 @section('page-description', 'Show the event details for "' . $event->name . '"')
 
 @section('content')
+    <!-- Author: Lee Chee Loong -->
+
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
