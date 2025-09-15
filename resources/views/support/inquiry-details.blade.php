@@ -3,6 +3,8 @@
 @section('title', 'Inquiry Details - EventHub')
 
 @section('content')
+<!-- Author: Yap Jia Wei -->
+
 <div class="container py-5">
     <div class="row">
         <div class="col-lg-8 mx-auto">

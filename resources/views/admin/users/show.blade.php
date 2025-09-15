@@ -5,6 +5,7 @@
 @section('page-description', 'View and manage user information')
 
 @section('content')
+<!-- Author: Tan Chim Yang -->
 <div class="row">
     <div class="col-12 d-flex justify-content-end mb-4">
         <div>

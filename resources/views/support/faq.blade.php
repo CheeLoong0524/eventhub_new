@@ -3,6 +3,7 @@
 @section('title', 'Frequently Asked Questions - EventHub')
 
 @section('content')
+<!-- Author: Yap Jia Wei -->
 <div class="container py-5">
     <div class="row">
         <div class="col-lg-10 mx-auto">

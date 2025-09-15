@@ -5,6 +5,7 @@
 @section('page-description', 'Create a new admin user')
 
 @section('content')
+<!-- Author: Tan Chim Yang -->
 <div class="row">
     <div class="col-12 d-flex justify-content-end mb-4">
         <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">

@@ -3,6 +3,7 @@
 @section('title', 'Admin Dashboard - EventHub')
 
 @section('styles')
+<!-- Author: Tan Chim Yang -->
 <style>
     .dashboard-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

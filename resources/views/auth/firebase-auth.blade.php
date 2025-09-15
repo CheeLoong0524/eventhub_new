@@ -3,6 +3,7 @@
 @section('title', 'Sign In - EventHub')
 
 @section('styles')
+<!-- Author: Tan Chim Yang -->
 <style>
     .firebase-auth-container {
         max-width: 600px;
