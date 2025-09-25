@@ -210,7 +210,7 @@ class FirebaseAuthController extends Controller
     }
 
     /**
-     * Check if user exists by email (no auth required)
+     * Check if user exists by email 
      * IFA: User Existence Check Service
      */
     public function checkUserExists(Request $request)

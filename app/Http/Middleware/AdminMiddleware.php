@@ -35,7 +35,7 @@ class AdminMiddleware
         if (!Auth::user()->is_active) {
             Auth::logout();
             return redirect()->route('admin.login')
-                ->with('error', 'Your account has been deactivated. Please contact system administrator.');
+                ->with('error', 'Your account has been deactivated. Please contact primary system administrator.');
         }
 
         return $next($request);

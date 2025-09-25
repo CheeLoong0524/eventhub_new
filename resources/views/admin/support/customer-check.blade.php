@@ -108,6 +108,12 @@
                                         When checked, this will consume the User Authentication Module API externally
                                     </small>
                                 </div>
+                                <div id="apiStatus" class="mt-2" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Note:</strong> External API is currently unavailable. Please uncheck the box above to use internal service.
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -156,7 +162,11 @@ document.getElementById('customerCheckForm').addEventListener('submit', function
     })
     .then(response => response.json())
     .then(data => {
-        displayResults(data, useApi);
+        if (data.success === false && data.data_source === 'external_failed') {
+            displayExternalFailure(data, useApi);
+        } else {
+            displayResults(data, useApi);
+        }
     })
     .catch(error => {
         console.error('Error:', error);
@@ -172,6 +182,10 @@ document.getElementById('customerCheckForm').addEventListener('submit', function
 function displayResults(data, usedApi) {
     const resultsDiv = document.getElementById('results');
     const customerInfoDiv = document.getElementById('customerInfo');
+    
+    // Get actual data source from API response
+    const actualDataSource = data.data_source || (usedApi ? 'external' : 'internal');
+    const isFallback = actualDataSource === 'internal_fallback';
     
     if (data.success && data.data.exists) {
         const user = data.data.user;
@@ -193,9 +207,10 @@ function displayResults(data, usedApi) {
                 <div class="col-md-6">
                     <h6>API Information:</h6>
                     <ul class="list-unstyled">
-                        <li><strong>API Used:</strong> <span class="badge ${usedApi ? 'badge-warning' : 'badge-primary'} api-info-badge">${usedApi ? 'External API' : 'Internal Service'}</span></li>
+                        <li><strong>API Used:</strong> <span class="badge ${getDataSourceBadgeClass(actualDataSource)} api-info-badge">${getDataSourceLabel(actualDataSource)}</span></li>
                         <li><strong>Response Time:</strong> <span class="badge badge-success api-info-badge">Fast</span></li>
                         <li><strong>Module:</strong> <span class="badge badge-info api-info-badge">User Authentication</span></li>
+                        ${isFallback ? '<li><strong>Note:</strong> <span class="badge badge-warning api-info-badge">Auto-fallback</span></li>' : ''}
                     </ul>
                 </div>
             </div>
@@ -229,6 +244,75 @@ function displayResults(data, usedApi) {
     resultsDiv.style.display = 'block';
 }
 
+function displayExternalFailure(data, usedApi) {
+    const resultsDiv = document.getElementById('results');
+    const customerInfoDiv = document.getElementById('customerInfo');
+    
+    // Show API status warning
+    document.getElementById('apiStatus').style.display = 'block';
+    
+    customerInfoDiv.innerHTML = `
+        <div class="alert alert-danger">
+            <h6><i class="fas fa-exclamation-triangle"></i> External API Failed</h6>
+            <p class="mb-2">${data.message}</p>
+            <p class="mb-0"><strong>Suggestion:</strong> ${data.suggestion}</p>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h6>What happened?</h6>
+                <ul>
+                    <li>External API server is unavailable</li>
+                    <li>Network connection failed</li>
+                    <li>Service temporarily down</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>How to fix:</h6>
+                <ul>
+                    <li><strong>Uncheck</strong> "Use External API" checkbox</li>
+                    <li>Click "Check Customer" again</li>
+                    <li>System will use internal service</li>
+                </ul>
+                <div class="mt-3">
+                    <button class="btn btn-warning btn-sm" onclick="switchToInternal()">
+                        <i class="fas fa-arrow-left"></i> Switch to Internal Service
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 pt-3 border-top">
+            <h6>API Information:</h6>
+            <ul class="list-unstyled">
+                <li><strong>API Used:</strong> <span class="badge badge-danger api-info-badge">External API (Failed)</span></li>
+                <li><strong>Error:</strong> <span class="badge badge-secondary api-info-badge">${data.error}</span></li>
+                <li><strong>Status:</strong> <span class="badge badge-danger api-info-badge">Service Unavailable</span></li>
+                ${data.debug_info ? `
+                <li><strong>Debug Info:</strong> 
+                    <small class="text-muted">
+                        ${data.debug_info.status ? 'Status: ' + data.debug_info.status + '<br>' : ''}
+                        ${data.debug_info.exception_type ? 'Exception: ' + data.debug_info.exception_type + '<br>' : ''}
+                        ${data.debug_info.error_message ? 'Message: ' + data.debug_info.error_message : ''}
+                    </small>
+                </li>
+                ` : ''}
+            </ul>
+        </div>
+    `;
+    
+    resultsDiv.style.display = 'block';
+}
+
+function switchToInternal() {
+    // Uncheck the external API checkbox
+    document.getElementById('useApiToggle').checked = false;
+    
+    // Hide API status warning
+    document.getElementById('apiStatus').style.display = 'none';
+    
+    // Trigger form submission
+    document.getElementById('customerCheckForm').dispatchEvent(new Event('submit'));
+}
+
 function displayError(message) {
     const resultsDiv = document.getElementById('results');
     const customerInfoDiv = document.getElementById('customerInfo');
@@ -256,6 +340,36 @@ function getRoleBadgeClass(role) {
             return 'badge-warning';
         case 'customer':
             return 'badge-success';
+        default:
+            return 'badge-secondary';
+    }
+}
+
+function getDataSourceLabel(dataSource) {
+    switch(dataSource) {
+        case 'external':
+            return 'External API';
+        case 'internal':
+            return 'Internal Service';
+        case 'internal_fallback':
+            return 'Internal Service (Fallback)';
+        case 'external_failed':
+            return 'External API (Failed)';
+        default:
+            return 'Unknown';
+    }
+}
+
+function getDataSourceBadgeClass(dataSource) {
+    switch(dataSource) {
+        case 'external':
+            return 'badge-warning';
+        case 'internal':
+            return 'badge-primary';
+        case 'internal_fallback':
+            return 'badge-info';
+        case 'external_failed':
+            return 'badge-danger';
         default:
             return 'badge-secondary';
     }

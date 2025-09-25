@@ -94,20 +94,20 @@ Route::get('/test-user-api', function() {
     try {
         // Test external API consumption
         $response = Http::timeout(10)
-            ->get(url('/api/v1/users-xml'));
+            ->get(url('/api/v1/users'));
 
         if ($response->failed()) {
             throw new \Exception('Failed to fetch users from API');
         }
 
-        $xml = simplexml_load_string($response->body());
-        $userCount = count($xml->user);
+        $apiData = $response->json();
+        $userCount = count($apiData['data'] ?? []);
         
         return response()->json([
             'status' => 'success',
             'message' => 'User API consumption test successful',
             'user_count' => $userCount,
-            'api_response' => $response->body()
+            'api_response' => $apiData
         ]);
     } catch (\Exception $e) {
         return response()->json([
@@ -121,15 +121,25 @@ Route::get('/test-user-api', function() {
 // Test User API with internal service
 Route::get('/test-user-internal', function() {
     try {
-        $userService = app(\App\Services\UserService::class);
-        $xml = $userService->generateUsersXml();
-        $userCount = count($xml->user);
+        $users = \App\Models\User::with(['vendor'])->get();
+        $userCount = $users->count();
+        
+        $usersData = $users->map(function ($user) {
+            return [
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'auth_method' => $user->auth_method,
+                'is_active' => $user->is_active,
+            ];
+        });
         
         return response()->json([
             'status' => 'success',
             'message' => 'User internal service test successful',
             'user_count' => $userCount,
-            'xml_response' => $xml->asXML()
+            'data' => $usersData
         ]);
     } catch (\Exception $e) {
         return response()->json([
@@ -215,6 +225,7 @@ Route::middleware('auth')->group(function () {
             $users = \App\Models\User::paginate(5);
             return response()->json($users);
         })->name('debug.users');
+        
         
         // Test customer check API
         Route::get('/test-customer-check', function() {

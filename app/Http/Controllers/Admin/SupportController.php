@@ -399,29 +399,98 @@ class SupportController extends Controller
 
     /**
      * Check if customer exists by email
-     * IFA: User Existence Check Service Consumption
-     * This method consumes the User Authentication Module API
+     * consumes the User Authentication Module API
      */
     public function checkCustomerExists(Request $request)
     {
         try {
-            // Auto-detect: if request has 'use_api' query param, consume externally
-            $useApi = $request->query('use_api', false);
+            $useApi = $request->input('use_api', false);
+            
+            // Debug logging
+            \Log::info('Customer check request', [
+                'use_api' => $useApi,
+                'email' => $request->email,
+                'all_params' => $request->all()
+            ]);
 
             if ($useApi) {
-                // External API consumption (consume User Authentication Module API)
-                $response = Http::timeout(10)
-                    ->post(url('/api/v1/auth/check-user'), [
-                        'email' => $request->email
+                // Real external API call to demonstrate actual failure
+                try {
+                    // Make actual HTTP call to invalid server (this will fail)
+                    $response = Http::timeout(5)
+                        ->post('http://127.0.0.1:8000/api/v1/auth/check-user', [
+                            'email' => $request->email
+                        ]);
+
+                    // Log the response for debugging
+                    \Log::info('External API Response', [
+                        'status' => $response->status(),
+                        'failed' => $response->failed(),
+                        'successful' => $response->successful(),
+                        'body' => $response->body()
                     ]);
 
-                if ($response->failed()) {
-                    throw new \Exception('Failed to check user existence from API');
-                }
+                    if ($response->failed()) {
+                        // Real failure - server responded with error
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'External API failed - Please uncheck "Use External API" to use internal service',
+                            'error' => 'External API server returned error: HTTP ' . $response->status(),
+                            'data_source' => 'external_failed',
+                            'suggestion' => 'Try using internal service instead',
+                            'debug_info' => [
+                                'status' => $response->status(),
+                                'body' => $response->body()
+                            ]
+                        ], 503);
+                    }
 
-                $apiData = $response->json();
+                    // If somehow it succeeded (shouldn't happen with invalid server)
+                    $apiData = $response->json();
+                    $apiData['data_source'] = 'external';
+                    return response()->json($apiData);
+                    
+                } catch (\Illuminate\Http\Client\ConnectionException $e) {
+                    // Real connection failure - server doesn't exist
+                    \Log::info('External API Connection Exception', [
+                        'error' => $e->getMessage(),
+                        'type' => get_class($e)
+                    ]);
+                    
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'External API failed - Please uncheck "Use External API" to use internal service',
+                        'error' => 'External API server unreachable: ' . $e->getMessage(),
+                        'data_source' => 'external_failed',
+                        'suggestion' => 'Try using internal service instead',
+                        'debug_info' => [
+                            'exception_type' => get_class($e),
+                            'error_message' => $e->getMessage()
+                        ]
+                    ], 503);
+                    
+                } catch (\Exception $e) {
+                    // Any other exception
+                    \Log::info('External API General Exception', [
+                        'error' => $e->getMessage(),
+                        'type' => get_class($e)
+                    ]);
+                    
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'External API failed - Please uncheck "Use External API" to use internal service',
+                        'error' => 'External API error: ' . $e->getMessage(),
+                        'data_source' => 'external_failed',
+                        'suggestion' => 'Try using internal service instead',
+                        'debug_info' => [
+                            'exception_type' => get_class($e),
+                            'error_message' => $e->getMessage()
+                        ]
+                    ], 503);
+                }
+                
             } else {
-                // Internal service consumption (direct database query)
+                // Direct internal service
                 $user = \App\Models\User::where('email', $request->email)->first();
                 $apiData = [
                     'success' => true,
@@ -435,11 +504,12 @@ class SupportController extends Controller
                             'role' => $user->role,
                             'is_active' => $user->is_active
                         ] : null
-                    ]
+                    ],
+                    'data_source' => 'internal'
                 ];
+                
+                return response()->json($apiData);
             }
-
-            return response()->json($apiData);
 
         } catch (\Exception $e) {
             return response()->json([

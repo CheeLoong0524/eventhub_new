@@ -30,7 +30,6 @@ class ExternalApiService
 
     /**
      * Get user information from User Management Module
-     * IFA: User Information Service Consumption
      */
     public function getUserInfo($userId, $queryFlag = 1)
     {

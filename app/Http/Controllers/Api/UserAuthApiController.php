@@ -23,11 +23,11 @@ class UserAuthApiController extends Controller
     }
 
     /**
-     * Get all users (XML format for external consumption)
+     * Get all users (JSON format)
      * IFA: User Information Service
-     * URL: /api/v1/users-xml
+     * URL: /api/v1/users
      */
-    public function getUsersXml(Request $request)
+    public function getUsers(Request $request): JsonResponse
     {
         try {
             // Auto-detect: if request has 'use_api' query param, consume externally
@@ -36,39 +36,68 @@ class UserAuthApiController extends Controller
             if ($useApi) {
                 // External API consumption (simulate another module)
                 $response = Http::timeout(10)
-                    ->get(url('/api/v1/users-xml'));
+                    ->get(url('/api/v1/users'));
 
                 if ($response->failed()) {
                     throw new \Exception('Failed to fetch users from API');
                 }
 
-                $xml = simplexml_load_string($response->body());
+                return response()->json($response->json());
             } else {
                 // Internal service consumption
-                $xml = $this->userService->generateUsersXml();
+                $users = User::with(['vendor'])->get();
+                
+                $usersData = $users->map(function ($user) {
+                    $userData = [
+                        'user_id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                        'auth_method' => $user->auth_method,
+                        'is_active' => $user->is_active,
+                        'phone' => $user->phone,
+                        'address' => $user->address,
+                        'created_at' => $user->created_at->toISOString(),
+                        'last_login_at' => $user->last_login_at ? $user->last_login_at->toISOString() : null,
+                    ];
+                    
+                    // Add vendor info if exists
+                    if ($user->vendor) {
+                        $userData['vendor'] = [
+                            'vendor_id' => $user->vendor->id,
+                            'business_name' => $user->vendor->business_name,
+                            'status' => $user->vendor->status,
+                        ];
+                    }
+                    
+                    return $userData;
+                });
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Users retrieved successfully',
+                    'data' => $usersData,
+                    'total' => $users->count()
+                ]);
             }
 
-            return response($xml->asXML(), 200)
-                ->header('Content-Type', 'application/xml');
-
         } catch (\Exception $e) {
-            Log::error('User XML generation failed', ['error' => $e->getMessage()]);
+            Log::error('User retrieval failed', ['error' => $e->getMessage()]);
             
-            $xml = new \SimpleXMLElement('<error/>');
-            $xml->addChild('message', 'Failed to retrieve users');
-            $xml->addChild('error', $e->getMessage());
-            
-            return response($xml->asXML(), 500)
-                ->header('Content-Type', 'application/xml');
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve users',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
-     * Get user by ID (XML format)
+     * Get user by ID (JSON format)
      * IFA: User Detail Service
-     * URL: /api/v1/users-xml/{id}
+     * URL: /api/v1/users/{id}
      */
-    public function getUserXml(Request $request, $id)
+    public function getUser(Request $request, $id): JsonResponse
     {
         try {
             // Auto-detect: if request has 'use_api' query param, consume externally
@@ -77,33 +106,65 @@ class UserAuthApiController extends Controller
             if ($useApi) {
                 // External API consumption (simulate another module)
                 $response = Http::timeout(10)
-                    ->get(url("/api/v1/users-xml/{$id}"));
+                    ->get(url("/api/v1/users/{$id}"));
 
                 if ($response->failed()) {
                     throw new \Exception('Failed to fetch user from API');
                 }
 
-                $xml = simplexml_load_string($response->body());
+                return response()->json($response->json());
             } else {
                 // Internal service consumption
-                $xml = $this->userService->generateUserXml($id);
+                $user = User::with(['vendor'])->find($id);
+                
+                if (!$user) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'User not found'
+                    ], 404);
+                }
+
+                $userData = [
+                    'user_id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'auth_method' => $user->auth_method,
+                    'is_active' => $user->is_active,
+                    'phone' => $user->phone,
+                    'address' => $user->address,
+                    'created_at' => $user->created_at->toISOString(),
+                    'last_login_at' => $user->last_login_at ? $user->last_login_at->toISOString() : null,
+                    'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->toISOString() : null,
+                ];
+                
+                // Add vendor info if exists
+                if ($user->vendor) {
+                    $userData['vendor'] = [
+                        'vendor_id' => $user->vendor->id,
+                        'business_name' => $user->vendor->business_name,
+                        'status' => $user->vendor->status,
+                    ];
+                }
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'User retrieved successfully',
+                    'data' => $userData
+                ]);
             }
 
-            return response($xml->asXML(), 200)
-                ->header('Content-Type', 'application/xml');
-
         } catch (\Exception $e) {
-            Log::error('User XML generation failed', [
+            Log::error('User retrieval failed', [
                 'user_id' => $id,
                 'error' => $e->getMessage()
             ]);
             
-            $xml = new \SimpleXMLElement('<error/>');
-            $xml->addChild('message', 'Failed to retrieve user');
-            $xml->addChild('error', $e->getMessage());
-            
-            return response($xml->asXML(), 500)
-                ->header('Content-Type', 'application/xml');
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve user',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

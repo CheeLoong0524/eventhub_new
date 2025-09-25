@@ -9,86 +9,6 @@ use Illuminate\Support\Facades\Cache;
 
 class UserService
 {
-    /**
-     * Generate XML for all users (Internal Service)
-     * IFA: User Information Service
-     */
-    public function generateUsersXml()
-    {
-        $cacheKey = 'users_xml_' . md5('all_users');
-        
-        return Cache::remember($cacheKey, 60, function () {
-            $users = User::with(['vendor'])->get();
-            
-            $xml = new \SimpleXMLElement('<users/>');
-            
-            foreach ($users as $user) {
-                $userXml = $xml->addChild('user');
-                $userXml->addChild('user_id', $user->id);
-                $userXml->addChild('name', htmlspecialchars($user->name));
-                $userXml->addChild('email', htmlspecialchars($user->email));
-                $userXml->addChild('role', $user->role);
-                $userXml->addChild('auth_method', $user->auth_method);
-                $userXml->addChild('is_active', $user->is_active ? '1' : '0');
-                $userXml->addChild('phone', htmlspecialchars($user->phone ?? ''));
-                $userXml->addChild('address', htmlspecialchars($user->address ?? ''));
-                $userXml->addChild('created_at', $user->created_at->toISOString());
-                $userXml->addChild('last_login_at', $user->last_login_at ? $user->last_login_at->toISOString() : '');
-                
-                // Add vendor info if exists
-                if ($user->vendor) {
-                    $vendorXml = $userXml->addChild('vendor');
-                    $vendorXml->addChild('vendor_id', $user->vendor->id);
-                    $vendorXml->addChild('business_name', htmlspecialchars($user->vendor->business_name));
-                    $vendorXml->addChild('status', $user->vendor->status);
-                }
-            }
-            
-            return $xml;
-        });
-    }
-
-    /**
-     * Generate XML for single user (Internal Service)
-     * IFA: User Detail Service
-     */
-    public function generateUserXml($userId)
-    {
-        $cacheKey = 'user_xml_' . $userId;
-        
-        return Cache::remember($cacheKey, 30, function () use ($userId) {
-            $user = User::with(['vendor'])->find($userId);
-            
-            if (!$user) {
-                $xml = new \SimpleXMLElement('<error/>');
-                $xml->addChild('message', 'User not found');
-                $xml->addChild('user_id', $userId);
-                return $xml;
-            }
-            
-            $xml = new \SimpleXMLElement('<user/>');
-            $xml->addChild('user_id', $user->id);
-            $xml->addChild('name', htmlspecialchars($user->name));
-            $xml->addChild('email', htmlspecialchars($user->email));
-            $xml->addChild('role', $user->role);
-            $xml->addChild('auth_method', $user->auth_method);
-            $xml->addChild('is_active', $user->is_active ? '1' : '0');
-            $xml->addChild('phone', htmlspecialchars($user->phone ?? ''));
-            $xml->addChild('address', htmlspecialchars($user->address ?? ''));
-            $xml->addChild('created_at', $user->created_at->toISOString());
-            $xml->addChild('last_login_at', $user->last_login_at ? $user->last_login_at->toISOString() : '');
-            
-            // Add vendor info if exists
-            if ($user->vendor) {
-                $vendorXml = $xml->addChild('vendor');
-                $vendorXml->addChild('vendor_id', $user->vendor->id);
-                $vendorXml->addChild('business_name', htmlspecialchars($user->vendor->business_name));
-                $vendorXml->addChild('status', $user->vendor->status);
-            }
-            
-            return $xml;
-        });
-    }
 
     /**
      * Get user authentication statistics (Internal Service)
@@ -158,12 +78,14 @@ class UserService
      */
     public function clearUserCache($userId = null)
     {
-        if ($userId) {
-            Cache::forget('user_xml_' . $userId);
-        } else {
-            Cache::forget('users_xml_' . md5('all_users'));
-        }
-        
+        // Clear user authentication statistics cache
         Cache::forget('user_auth_stats');
+        
+        // Add other cache keys as needed for JSON-based APIs
+        if ($userId) {
+            Cache::forget('user_data_' . $userId);
+        } else {
+            Cache::forget('users_data_all');
+        }
     }
 }
